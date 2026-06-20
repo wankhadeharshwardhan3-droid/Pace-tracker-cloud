@@ -1,0 +1,2156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Pace</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon-192.png">
+<meta name="theme-color" content="#16181D">
+<script src="https://unpkg.com/@simplewebauthn/browser@13/dist/bundle/index.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root{
+    --bg:#FAFAF8;
+    --card:#FFFFFF;
+    --ink:#16181D;
+    --ink-soft:#888B91;
+    --ink-faint:#B8BABE;
+    --accent:#3A5A78;
+    --accent-soft:#E8EEF3;
+    --warn:#C17A5C;
+    --warn-soft:#F5E9E2;
+    --line:#E8E7E3;
+    --line-strong:#D8D6D0;
+  }
+  [data-theme="dark"]{
+    --bg:#121315;
+    --card:#1B1C1F;
+    --ink:#EDEDEC;
+    --ink-soft:#8E9096;
+    --ink-faint:#5C5E63;
+    --accent:#7FA8C9;
+    --accent-soft:#202A33;
+    --warn:#D99777;
+    --warn-soft:#2E2420;
+    --line:#2A2B2F;
+    --line-strong:#36373C;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter', sans-serif;
+    min-height:100vh;
+    padding-bottom:60px;
+    -webkit-font-smoothing:antialiased;
+    transition:background-color 0.2s ease, color 0.2s ease;
+  }
+  .serif{font-family:'Source Serif 4', Georgia, serif;}
+  *:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:4px;}
+
+  .wrap{max-width:560px; margin:0 auto; padding:0 20px;}
+
+  /* ---------- header ---------- */
+  header.top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:28px 0 22px;
+  }
+  .brand{
+    display:flex;
+    align-items:baseline;
+    gap:9px;
+  }
+  .brand-name{
+    font-family:'Source Serif 4', serif;
+    font-weight:600;
+    font-size:1.3rem;
+    letter-spacing:-0.01em;
+  }
+  .brand-profile{
+    font-size:0.78rem;
+    color:var(--ink-soft);
+    font-weight:500;
+  }
+  .top-actions{
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .icon-btn{
+    background:none;
+    border:none;
+    color:var(--ink-soft);
+    cursor:pointer;
+    font-size:1rem;
+    padding:7px 9px;
+    border-radius:8px;
+    line-height:1;
+  }
+  .icon-btn:hover{background:var(--line);}
+  .top-actions #logoutBtn{
+    padding:7px 10px;
+    border-radius:8px;
+  }
+  .top-actions #logoutBtn:hover{background:var(--line); color:var(--ink);}
+
+  /* ---------- generic buttons ---------- */
+  button{
+    font-family:'Inter', sans-serif;
+    font-weight:600;
+    font-size:0.88rem;
+    cursor:pointer;
+    border-radius:10px;
+    border:1px solid transparent;
+    padding:11px 18px;
+    transition:opacity 0.15s ease, background-color 0.15s ease;
+  }
+  button.primary{
+    background:var(--ink);
+    color:var(--bg);
+  }
+  button.primary:hover{opacity:0.85;}
+  button.secondary{
+    background:transparent;
+    color:var(--ink);
+    border:1px solid var(--line-strong);
+  }
+  button.secondary:hover{background:var(--line);}
+  button.text{
+    background:none;
+    color:var(--ink-soft);
+    font-weight:500;
+    font-size:0.82rem;
+    padding:6px 4px;
+  }
+  button.text:hover{color:var(--ink);}
+  button:disabled{opacity:0.4; cursor:not-allowed;}
+
+  /* ---------- profile gate ---------- */
+  .gate{
+    min-height:80vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .gate-card{
+    width:100%;
+    max-width:380px;
+    text-align:center;
+  }
+  .gate-card h1{
+    font-family:'Source Serif 4', serif;
+    font-size:1.7rem;
+    font-weight:600;
+    margin:0 0 8px;
+  }
+  .gate-card > p{
+    color:var(--ink-soft);
+    font-size:0.92rem;
+    margin:0 0 28px;
+    line-height:1.5;
+  }
+  .gate-form{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:24px 22px;
+    text-align:left;
+  }
+  .gate-form .field{
+    margin-bottom:16px;
+  }
+  .gate-form .field:last-of-type{
+    margin-bottom:0;
+  }
+  .gate-error{
+    color:var(--warn);
+    font-size:0.82rem;
+    font-weight:600;
+    margin:14px 0 0;
+    line-height:1.4;
+  }
+  .gate-submit{
+    width:100%;
+    margin-top:18px;
+  }
+  .gate-switch{
+    margin:18px 0 0;
+    font-size:0.85rem;
+    color:var(--ink-soft);
+  }
+  .gate-admin-link{
+    margin:10px 0 0;
+    font-size:0.78rem;
+    text-align:center;
+  }
+  .gate-admin-link .link-btn{
+    color:var(--ink-faint);
+    font-weight:500;
+  }
+  .gate-admin-form{
+    margin-top:14px;
+  }
+  .gate-admin-back{
+    width:100%;
+    text-align:center;
+    margin-top:12px;
+    color:var(--ink-soft);
+    font-weight:500;
+  }
+  .biometric-name{
+    text-align:center;
+    font-size:0.92rem;
+    font-weight:600;
+    color:var(--ink);
+    margin:0 0 16px;
+  }
+  .link-btn{
+    background:none;
+    border:none;
+    padding:0;
+    font-family:'Inter', sans-serif;
+    font-weight:600;
+    font-size:0.85rem;
+    color:var(--accent);
+    cursor:pointer;
+  }
+  .link-btn:hover{text-decoration:underline;}
+
+  /* ---------- deadline banner ---------- */
+  .deadline-banner{
+    background:var(--warn-soft);
+    border:1px solid var(--warn);
+    border-radius:14px;
+    padding:16px 18px;
+    margin:0 0 18px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    flex-wrap:wrap;
+  }
+  .deadline-banner-text{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+    font-size:0.85rem;
+  }
+  .deadline-banner-text strong{
+    font-size:0.92rem;
+    color:var(--ink);
+  }
+  .deadline-banner-text span{
+    color:var(--ink-soft);
+  }
+  .deadline-extend{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  .deadline-extend input[type="date"]{
+    width:auto;
+  }
+  button.small{
+    padding:8px 14px;
+    font-size:0.82rem;
+  }
+
+  /* ---------- setup card ---------- */
+  .setup-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:24px 22px;
+    margin:14px 0 24px;
+  }
+  .setup-card h2{
+    font-family:'Source Serif 4', serif;
+    font-size:1.25rem;
+    font-weight:600;
+    margin:0 0 5px;
+  }
+  .setup-card p.hint{
+    margin:0 0 20px;
+    color:var(--ink-soft);
+    font-size:0.85rem;
+    line-height:1.5;
+  }
+  .field-row{display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap;}
+  .field{flex:1; min-width:130px;}
+  .field label{
+    display:block;
+    font-weight:600;
+    font-size:0.72rem;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+    color:var(--ink-soft);
+    margin-bottom:7px;
+  }
+  input[type="date"], input[type="number"], input[type="text"], input[type="password"]{
+    width:100%;
+    padding:10px 12px;
+    border:1px solid var(--line-strong);
+    border-radius:10px;
+    background:var(--bg);
+    font-family:'Inter', sans-serif;
+    font-weight:500;
+    font-size:0.95rem;
+    color:var(--ink);
+    transition:border-color 0.15s ease;
+  }
+  input:focus{border-color:var(--accent); outline:none;}
+  #pinInput{
+    letter-spacing:0.5em;
+    font-size:1.2rem;
+    text-align:center;
+  }
+
+  .preview-banner{
+    display:none;
+    background:var(--accent-soft);
+    border-radius:10px;
+    padding:11px 14px;
+    margin-bottom:16px;
+    font-weight:600;
+    font-size:0.85rem;
+    color:var(--accent);
+  }
+
+  /* ---------- hero / balance ---------- */
+  .hero{
+    padding:6px 2px 26px;
+    text-align:center;
+  }
+  .hero-label{
+    font-size:0.74rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--ink-faint);
+    font-weight:600;
+    margin-bottom:10px;
+  }
+  .hero-number{
+    font-family:'Source Serif 4', serif;
+    font-size:3.4rem;
+    font-weight:600;
+    line-height:1;
+    letter-spacing:-0.02em;
+  }
+  .hero-number.ahead{color:var(--accent);}
+  .hero-number.behind{color:var(--warn);}
+  .hero-number.even{color:var(--ink);}
+  .hero-sub{
+    font-size:0.9rem;
+    color:var(--ink-soft);
+    margin-top:8px;
+    font-weight:500;
+  }
+
+  /* ---------- stat row ---------- */
+  .stat-row{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+    margin-bottom:26px;
+  }
+  .stat-cell{
+    padding:16px 8px;
+    text-align:center;
+    border-left:1px solid var(--line);
+  }
+  .stat-cell:first-child{border-left:none;}
+  .stat-cell .k{
+    font-size:0.68rem;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+    color:var(--ink-faint);
+    font-weight:600;
+    margin-bottom:5px;
+  }
+  .stat-cell .v{
+    font-family:'Source Serif 4', serif;
+    font-size:1.25rem;
+    font-weight:600;
+  }
+
+  /* ---------- chart (signature element) ---------- */
+  .chart-card{
+    margin-bottom:28px;
+  }
+  .chart-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:14px;
+  }
+  .chart-head h2{
+    font-family:'Source Serif 4', serif;
+    font-size:1.05rem;
+    font-weight:600;
+    margin:0;
+  }
+  .chart-legend{
+    display:flex;
+    gap:14px;
+  }
+  .chart-legend .item{
+    display:flex;
+    align-items:center;
+    gap:5px;
+    font-size:0.74rem;
+    font-weight:600;
+    color:var(--ink-soft);
+  }
+  .chart-legend .swatch{
+    width:12px;height:3px;
+    border-radius:2px;
+    display:inline-block;
+  }
+  .chart-legend .swatch.actual{background:var(--accent);}
+  .chart-legend .swatch.ideal{background:var(--ink-faint);}
+  .chart-wrap{
+    position:relative;
+    width:100%;
+    min-height:200px;
+  }
+  #progressChart{
+    width:100%;
+    display:block;
+  }
+  .chart-empty{
+    text-align:center;
+    color:var(--ink-faint);
+    font-weight:500;
+    font-size:0.85rem;
+    padding:60px 10px;
+  }
+
+  /* ---------- progress bar ---------- */
+  .progress-block{margin-bottom:28px;}
+  .progress-head{
+    display:flex;
+    justify-content:space-between;
+    font-weight:600;
+    font-size:0.78rem;
+    color:var(--ink-soft);
+    margin-bottom:8px;
+  }
+  .progress-track{
+    height:6px;
+    background:var(--line);
+    border-radius:99px;
+    overflow:hidden;
+    position:relative;
+  }
+  .progress-fill{
+    height:100%;
+    background:var(--ink);
+    border-radius:99px;
+    transition:width 0.5s ease;
+  }
+  .progress-marker{
+    position:absolute;
+    top:-3px;
+    width:2px;
+    height:12px;
+    background:var(--warn);
+    opacity:0.7;
+  }
+
+  /* ---------- entry card ---------- */
+  .entry-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:20px;
+    margin-bottom:26px;
+  }
+  .entry-card h2{
+    font-family:'Source Serif 4', serif;
+    font-size:1.05rem;
+    font-weight:600;
+    margin:0 0 14px;
+  }
+  .entry-row{display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;}
+  .entry-row .field{flex:1; min-width:120px;}
+  .entry-row button{flex-shrink:0;}
+
+  .quick-add{
+    display:flex;
+    gap:8px;
+    margin-top:12px;
+    flex-wrap:wrap;
+  }
+  .quick-add button{
+    background:var(--bg);
+    color:var(--ink-soft);
+    border:1px solid var(--line-strong);
+    padding:7px 13px;
+    font-size:0.78rem;
+  }
+  .quick-add button:hover{border-color:var(--accent); color:var(--accent);}
+
+  .session-hint{
+    margin:12px 0 0;
+    font-size:0.78rem;
+    color:var(--ink-soft);
+    min-height:1.1em;
+  }
+
+  /* ---------- log list ---------- */
+  .log-section h2{
+    font-family:'Source Serif 4', serif;
+    font-size:1.05rem;
+    font-weight:600;
+    margin:0 0 14px;
+  }
+  .log-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:12px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .log-row .date-txt{
+    font-size:0.82rem;
+    font-weight:600;
+    color:var(--ink-soft);
+    min-width:64px;
+  }
+  .log-row .hrs{
+    font-family:'Source Serif 4', serif;
+    font-weight:600;
+    font-size:1rem;
+    flex:1;
+  }
+  .log-row .delta{
+    font-size:0.78rem;
+    font-weight:600;
+    min-width:60px;
+    text-align:right;
+  }
+  .log-row .delta.ahead{color:var(--accent);}
+  .log-row .delta.behind{color:var(--warn);}
+  .log-row .del-btn{
+    background:none;
+    border:none;
+    color:var(--ink-faint);
+    cursor:pointer;
+    font-size:0.95rem;
+    padding:2px 4px;
+    line-height:1;
+  }
+  .log-row .del-btn:hover{color:var(--warn);}
+  .empty-log{
+    text-align:center;
+    color:var(--ink-faint);
+    font-weight:500;
+    font-size:0.88rem;
+    padding:36px 10px;
+    border:1px dashed var(--line-strong);
+    border-radius:14px;
+  }
+
+  .privacy-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    margin-top:28px;
+    padding:14px 16px;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:14px;
+  }
+  .privacy-row + .privacy-row{
+    margin-top:12px;
+  }
+  .privacy-row button.secondary{
+    flex:none;
+    padding:8px 14px;
+    font-size:0.82rem;
+  }
+  .privacy-text{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+  }
+  .privacy-text strong{
+    font-size:0.86rem;
+    color:var(--ink);
+  }
+  .privacy-text span{
+    font-size:0.78rem;
+    color:var(--ink-soft);
+    line-height:1.4;
+  }
+  .switch{
+    flex:none;
+    width:42px;
+    height:24px;
+    border-radius:99px;
+    background:var(--line-strong);
+    border:none;
+    padding:3px;
+    cursor:pointer;
+    position:relative;
+    transition:background-color 0.15s ease;
+  }
+  .switch-knob{
+    display:block;
+    width:18px;
+    height:18px;
+    border-radius:50%;
+    background:var(--card);
+    box-shadow:0 1px 2px rgba(0,0,0,0.15);
+    transition:transform 0.15s ease;
+  }
+  .switch[aria-checked="true"]{
+    background:var(--accent);
+  }
+  .switch[aria-checked="true"] .switch-knob{
+    transform:translateX(18px);
+  }
+
+  .reset-row{
+    text-align:center;
+    margin-top:36px;
+    display:flex;
+    justify-content:center;
+    gap:18px;
+  }
+
+  .hidden{display:none !important;}
+
+  /* ---------- view tabs ---------- */
+  .view-tabs{
+    display:flex;
+    gap:6px;
+    margin:0 0 22px;
+    padding:4px;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:12px;
+  }
+  .tab-btn{
+    flex:1;
+    background:none;
+    border:none;
+    border-radius:9px;
+    padding:9px 0;
+    font-family:'Inter', sans-serif;
+    font-weight:600;
+    font-size:0.85rem;
+    color:var(--ink-soft);
+    cursor:pointer;
+    transition:background-color 0.15s ease, color 0.15s ease;
+  }
+  .tab-btn.active{
+    background:var(--ink);
+    color:var(--bg);
+  }
+  .tab-btn:not(.active):hover{background:var(--line);}
+
+  /* ---------- everyone view ---------- */
+  .everyone-section{margin-bottom:28px;}
+  .person-row{
+    padding:14px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .person-row:last-child{border-bottom:none;}
+  .person-row.is-me .person-name::after{
+    content:' (you)';
+    color:var(--ink-faint);
+    font-weight:500;
+  }
+  .person-top{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:8px;
+  }
+  .person-top .avatar{
+    width:28px;height:28px;
+    border-radius:50%;
+    background:var(--accent-soft);
+    color:var(--accent);
+    display:flex;align-items:center;justify-content:center;
+    font-size:0.7rem;
+    font-weight:700;
+    flex-shrink:0;
+  }
+  .person-name{
+    font-weight:600;
+    font-size:0.92rem;
+    flex:1;
+    min-width:0;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .person-bal{
+    font-weight:600;
+    font-size:0.85rem;
+    flex-shrink:0;
+  }
+  .person-bal.ahead{color:var(--accent);}
+  .person-bal.behind{color:var(--warn);}
+  .person-bal.even{color:var(--ink-soft);}
+  .person-track{
+    height:5px;
+    background:var(--line);
+    border-radius:99px;
+    overflow:hidden;
+    margin-bottom:6px;
+  }
+  .person-fill{
+    height:100%;
+    background:var(--ink);
+    border-radius:99px;
+    transition:width 0.5s ease;
+  }
+  .person-meta{
+    font-size:0.76rem;
+    color:var(--ink-faint);
+    font-weight:500;
+  }
+  .admin-private-badge{
+    display:inline-block;
+    margin-left:6px;
+    padding:1px 7px;
+    border-radius:99px;
+    background:var(--warn-soft);
+    color:var(--warn);
+    font-size:0.68rem;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.03em;
+  }
+
+  @media (max-width:380px){
+    .hero-number{font-size:2.6rem;}
+    .stat-cell .v{font-size:1.05rem;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- PROFILE GATE -->
+  <div class="gate" id="gate">
+    <div class="gate-card">
+      <h1>Pace</h1>
+      <p id="gateBlurb">Track daily study hours against your target — and see how everyone else is pacing too.</p>
+
+      <div class="gate-form gate-biometric-form hidden" id="biometricLoginForm">
+        <p class="biometric-name" id="biometricLoginName"></p>
+        <button class="primary gate-submit" id="biometricLoginBtn">Log in with Face ID / fingerprint</button>
+        <div class="gate-error hidden" id="biometricGateError"></div>
+        <button type="button" class="link-btn gate-admin-back" id="useDifferentLoginBtn">Use PIN instead</button>
+      </div>
+
+      <div class="gate-form" id="pinLoginForm">
+        <div class="field">
+          <label for="nameInput">Your name</label>
+          <input type="text" id="nameInput" placeholder="e.g. Priya" maxlength="30" autocomplete="username">
+        </div>
+        <div class="field">
+          <label for="pinInput">4-digit PIN</label>
+          <input type="password" id="pinInput" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="••••" autocomplete="current-password">
+        </div>
+        <div class="gate-error hidden" id="gateError"></div>
+        <button class="primary gate-submit" id="enterBtn">Log in</button>
+      </div>
+      <p class="gate-switch">
+        <span id="gateModeText">New here?</span>
+        <button type="button" class="link-btn" id="gateModeToggle">Create an account</button>
+      </p>
+      <p class="gate-admin-link">
+        <button type="button" class="link-btn" id="showAdminLoginBtn">Log in as admin</button>
+      </p>
+      <div class="gate-form gate-admin-form hidden" id="adminLoginForm">
+        <div class="field">
+          <label for="adminPasscodeInput">Admin passcode</label>
+          <input type="password" id="adminPasscodeInput" placeholder="Admin passcode" autocomplete="off">
+        </div>
+        <div class="gate-error hidden" id="adminGateError"></div>
+        <button class="secondary gate-submit" id="adminEnterBtn">Log in as admin</button>
+        <button type="button" class="link-btn gate-admin-back" id="hideAdminLoginBtn">Back to regular login</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- APP -->
+  <div id="app" class="hidden">
+
+    <header class="top">
+      <div class="brand">
+        <span class="brand-name">Pace</span>
+        <span class="brand-profile" id="profileLabel"></span>
+      </div>
+      <div class="top-actions">
+        <button class="icon-btn" id="themeToggle" aria-label="Toggle dark mode" title="Toggle dark mode">◐</button>
+        <button class="icon-btn" id="switchProfileBtn" aria-label="Switch profile" title="Switch profile">⇄</button>
+        <button class="text" id="logoutBtn" aria-label="Log out" title="Log out">Log out</button>
+      </div>
+    </header>
+
+    <div class="view-tabs" id="viewTabs">
+      <button class="tab-btn active" data-view="mine">My pace</button>
+      <button class="tab-btn" data-view="everyone">Everyone</button>
+    </div>
+
+    <div id="loadingState" class="hidden" style="text-align:center; padding:60px 10px; color:var(--ink-faint); font-weight:500;">Loading…</div>
+
+    <!-- SETUP -->
+    <div class="setup-card" id="setupCard">
+      <h2>Set your target</h2>
+      <p class="hint">Daily hours and a date range. Total goal is calculated for you.</p>
+      <div class="field-row">
+        <div class="field">
+          <label for="dailyTargetInput">Daily target (hrs)</label>
+          <input type="number" id="dailyTargetInput" step="0.25" placeholder="e.g. 8" min="0.25">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="startDate">Start date</label>
+          <input type="date" id="startDate">
+        </div>
+        <div class="field">
+          <label for="endDate">End date</label>
+          <input type="date" id="endDate">
+        </div>
+      </div>
+      <div class="preview-banner" id="totalPreviewRow">
+        <span id="totalPreview">—</span>
+      </div>
+      <button class="primary" id="saveGoalBtn">Save target</button>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="dashboard" class="hidden">
+
+      <div class="deadline-banner hidden" id="deadlineBanner">
+        <div class="deadline-banner-text">
+          <strong>Goal period ended</strong>
+          <span id="deadlineBannerSub">Your target ran through a date that's now passed.</span>
+        </div>
+        <div class="deadline-extend hidden" id="deadlineExtendRow">
+          <input type="date" id="newEndDateInput">
+          <button class="primary small" id="confirmExtendBtn">Extend</button>
+          <button class="text" id="cancelExtendBtn">Cancel</button>
+        </div>
+        <button class="secondary small" id="extendDeadlineBtn">Extend deadline</button>
+      </div>
+
+      <div class="hero">
+        <div class="hero-label">Running balance</div>
+        <div class="hero-number even" id="balanceNumber">0.0 hrs</div>
+        <div class="hero-sub" id="balanceSub">—</div>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat-cell">
+          <div class="k">Daily target</div>
+          <div class="v" id="dailyTarget">—</div>
+        </div>
+        <div class="stat-cell">
+          <div class="k">Logged</div>
+          <div class="v" id="loggedSoFar">—</div>
+        </div>
+        <div class="stat-cell">
+          <div class="k">Days left</div>
+          <div class="v" id="daysRemaining">—</div>
+        </div>
+      </div>
+
+      <div class="progress-block">
+        <div class="progress-head">
+          <span id="progressPct">0%</span>
+          <span id="progressGoal">of goal</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill" style="width:0%"></div>
+          <div class="progress-marker" id="progressMarker" style="left:0%"></div>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-head">
+          <h2>Trajectory</h2>
+          <div class="chart-legend">
+            <span class="item"><span class="swatch actual"></span>Actual</span>
+            <span class="item"><span class="swatch ideal"></span>Ideal</span>
+          </div>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="progressChart"></canvas>
+          <div class="chart-empty hidden" id="chartEmpty">Log a few days to see your trajectory.</div>
+        </div>
+      </div>
+
+      <div class="entry-card">
+        <h2>Log today</h2>
+        <div class="entry-row">
+          <div class="field">
+            <label for="entryDate">Date</label>
+            <input type="date" id="entryDate">
+          </div>
+          <div class="field">
+            <label for="entryHours">Hours studied</label>
+            <input type="number" id="entryHours" step="0.25" min="0" placeholder="e.g. 7.5">
+          </div>
+          <button class="secondary" id="addSessionBtn" title="Add this on top of today's logged hours">+ Add session</button>
+          <button class="primary" id="addEntryBtn" title="Set this date's total to exactly this many hours">Set total</button>
+        </div>
+        <div class="quick-add" id="quickAdd"></div>
+        <p class="hint session-hint" id="sessionHint"></p>
+      </div>
+
+      <div class="log-section">
+        <h2>Log</h2>
+        <div id="logList"></div>
+      </div>
+
+      <div class="privacy-row">
+        <div class="privacy-text">
+          <strong>Hide my progress</strong>
+          <span>Your name still shows in Everyone, but your hours and balance stay private.</span>
+        </div>
+        <button class="switch" id="privacyToggle" role="switch" aria-checked="false" aria-label="Hide my progress from others">
+          <span class="switch-knob"></span>
+        </button>
+      </div>
+
+      <div class="privacy-row hidden" id="biometricRow">
+        <div class="privacy-text">
+          <strong id="biometricRowTitle">Use Face ID / fingerprint on this device</strong>
+          <span id="biometricRowHint">Skip typing your PIN next time you log in on this device.</span>
+        </div>
+        <button class="secondary" id="biometricSetupBtn">Set up</button>
+      </div>
+
+      <div class="privacy-row hidden" id="notifRow">
+        <div class="privacy-text">
+          <strong id="notifRowTitle">Daily reminders</strong>
+          <span id="notifRowHint">Get a nudge if you haven't logged your hours yet.</span>
+        </div>
+        <button class="secondary" id="notifSetupBtn">Enable</button>
+      </div>
+
+      <div class="reset-row">
+        <button class="text" id="editGoalBtn">Edit target</button>
+        <button class="text" id="resetAllBtn">Clear my data</button>
+      </div>
+
+    </div>
+
+    <!-- EVERYONE -->
+    <div id="everyoneView" class="hidden">
+      <div class="log-section everyone-section">
+        <h2>Everyone's pace</h2>
+        <div id="everyoneList"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  const ACTIVE_KEY = 'paceSession';           // {"name":"Priya","token":"..."} — remembers who's logged in on this device
+  const LAST_NAME_KEY = 'paceLastName';       // last name used to log in on this device, just for offering biometric login
+  const THEME_KEY = 'paceTheme';
+  const API_BASE = '/api';
+  const $ = id => document.getElementById(id);
+
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  // ---------- theme ----------
+  function applyTheme(theme){
+    document.documentElement.setAttribute('data-theme', theme);
+    const btn = $('themeToggle');
+    if(btn) btn.textContent = theme === 'dark' ? '◑' : '◐';
+    try{ localStorage.setItem(THEME_KEY, theme); }catch(e){}
+  }
+  function getSavedTheme(){
+    try{
+      const saved = localStorage.getItem(THEME_KEY);
+      if(saved) return saved;
+    }catch(e){}
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  applyTheme(getSavedTheme());
+
+  // ---------- service worker (enables push notifications) ----------
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').catch(err => console.error('SW registration failed', err));
+    });
+  }
+
+  // ---------- shared server storage (everyone's data lives here) ----------
+  let sessionToken = null;
+  function authHeaders(){
+    return sessionToken ? { 'Authorization': `Bearer ${sessionToken}` } : {};
+  }
+  // thrown when the server rejects our session — callers route this back to the gate
+  class AuthError extends Error {}
+
+  async function apiSignup(name, pin){
+    const res = await fetch(`${API_BASE}/auth`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ action: 'signup', name, pin })
+    });
+    const body = await res.json().catch(() => ({}));
+    if(!res.ok) throw new Error(body.error || 'Could not create account');
+    return body; // { ok, name, token }
+  }
+  async function apiLogin(name, pin){
+    const res = await fetch(`${API_BASE}/auth`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ action: 'login', name, pin })
+    });
+    const body = await res.json().catch(() => ({}));
+    if(!res.ok) throw new Error(body.error || 'Could not log in');
+    return body; // { ok, name, token }
+  }
+  async function apiAdminLogin(passcode){
+    const res = await fetch(`${API_BASE}/auth`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ action: 'admin', passcode })
+    });
+    const body = await res.json().catch(() => ({}));
+    if(!res.ok) throw new Error(body.error || 'Could not log in as admin');
+    return body; // { ok, isAdmin, token }
+  }
+  // ---------- WebAuthn (Face ID / Touch ID / fingerprint) ----------
+  async function apiWebauthnPost(action, extra){
+    const res = await fetch(`${API_BASE}/webauthn`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json', ...(extra && extra.auth ? authHeaders() : {})},
+      body: JSON.stringify({ action, ...(extra && extra.body) })
+    });
+    const body = await res.json().catch(() => ({}));
+    if(res.status === 401) throw new AuthError('Session expired');
+    if(!res.ok) throw new Error(body.error || 'Something went wrong');
+    return body;
+  }
+  async function apiHasCredential(name){
+    try{
+      const body = await apiWebauthnPost('has-credential', { body: { name } });
+      return Boolean(body.hasCredential);
+    }catch(e){ return false; }
+  }
+  async function registerBiometric(){
+    if(!window.SimpleWebAuthnBrowser || !SimpleWebAuthnBrowser.browserSupportsWebAuthn()){
+      throw new Error('This browser doesn\'t support Face ID / Touch ID / fingerprint login.');
+    }
+    const optionsJSON = await apiWebauthnPost('reg-options', { auth: true });
+    const { startRegistration } = SimpleWebAuthnBrowser;
+    let attResp;
+    try{
+      attResp = await startRegistration({ optionsJSON });
+    }catch(err){
+      if(err && err.name === 'InvalidStateError'){
+        throw new Error('This device is already set up for biometric login.');
+      }
+      throw new Error('Could not set up biometric login on this device.');
+    }
+    await apiWebauthnPost('reg-verify', { auth: true, body: { response: attResp } });
+  }
+  async function removeBiometric(){
+    await apiWebauthnPost('remove', { auth: true });
+  }
+  async function loginWithBiometric(name){
+    if(!window.SimpleWebAuthnBrowser || !SimpleWebAuthnBrowser.browserSupportsWebAuthn()){
+      throw new Error('This browser doesn\'t support Face ID / Touch ID / fingerprint login.');
+    }
+    const optionsJSON = await apiWebauthnPost('auth-options', { body: { name } });
+    const { startAuthentication } = SimpleWebAuthnBrowser;
+    let asseResp;
+    try{
+      asseResp = await startAuthentication({ optionsJSON });
+    }catch(err){
+      throw new Error('Could not verify — try your PIN instead.');
+    }
+    const result = await apiWebauthnPost('auth-verify', { body: { name, response: asseResp } });
+    return result; // { ok, name, token }
+  }
+  // ---------- push notifications ----------
+  async function apiVapidPublicKey(){
+    const res = await fetch(`${API_BASE}/vapid-public-key`);
+    const body = await res.json().catch(() => ({}));
+    if(!res.ok) throw new Error('Could not load notification settings');
+    return body.publicKey || '';
+  }
+  async function apiPushPost(action, subscription){
+    const res = await fetch(`${API_BASE}/push`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json', ...authHeaders()},
+      body: JSON.stringify({ action, subscription })
+    });
+    const body = await res.json().catch(() => ({}));
+    if(res.status === 401) throw new AuthError('Session expired');
+    if(!res.ok) throw new Error(body.error || 'Something went wrong');
+    return body;
+  }
+  function urlBase64ToUint8Array(base64String){
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for(let i = 0; i < rawData.length; i++) outputArray[i] = rawData.charCodeAt(i);
+    return outputArray;
+  }
+  async function getExistingPushSubscription(){
+    if(!('serviceWorker' in navigator) || !('PushManager' in window)) return null;
+    try{
+      const reg = await navigator.serviceWorker.ready;
+      return await reg.pushManager.getSubscription();
+    }catch(e){ return null; }
+  }
+  async function enablePushNotifications(){
+    if(!('serviceWorker' in navigator) || !('PushManager' in window)){
+      throw new Error('This browser doesn\'t support notifications.');
+    }
+    const permission = await Notification.requestPermission();
+    if(permission !== 'granted'){
+      throw new Error('Notifications were not enabled.');
+    }
+    const publicKey = await apiVapidPublicKey();
+    if(!publicKey){
+      throw new Error('Reminders are not set up on this site yet.');
+    }
+    const reg = await navigator.serviceWorker.ready;
+    let sub = await reg.pushManager.getSubscription();
+    if(!sub){
+      sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(publicKey)
+      });
+    }
+    await apiPushPost('save', sub.toJSON());
+  }
+  async function disablePushNotifications(){
+    const sub = await getExistingPushSubscription();
+    if(sub){
+      await sub.unsubscribe().catch(() => {});
+    }
+    await apiPushPost('remove');
+  }
+
+  async function apiGetProfiles(){
+    const res = await fetch(`${API_BASE}/profiles`, { headers: authHeaders() });
+    if(res.status === 401) throw new AuthError('Session expired');
+    if(!res.ok) throw new Error('Failed to load profiles');
+    return res.json();
+  }
+  async function apiGetProfile(name){
+    const res = await fetch(`${API_BASE}/profile?name=${encodeURIComponent(name)}`, { headers: authHeaders() });
+    if(res.status === 401) throw new AuthError('Session expired');
+    if(!res.ok) throw new Error('Failed to load profile');
+    return res.json();
+  }
+  async function apiSaveProfile(name, data){
+    const res = await fetch(`${API_BASE}/profile`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json', ...authHeaders()},
+      body: JSON.stringify({name, data})
+    });
+    if(res.status === 401) throw new AuthError('Session expired');
+    if(!res.ok) throw new Error('Failed to save');
+    return res.json();
+  }
+  // fire-and-forget save used by all the mutation handlers below —
+  // the UI already updated optimistically from the in-memory `data` object
+  let saveFailedOnce = false;
+  function saveProfileData(name, data){
+    apiSaveProfile(name, data).catch((err) => {
+      if(err instanceof AuthError){ return forceLogout('Your session expired — please log in again.'); }
+      if(!saveFailedOnce){
+        saveFailedOnce = true;
+        alert('Could not sync your changes to the shared server — check your connection. Your change is kept on this device for now; try again once you\'re back online.');
+      }
+    }).then(() => { saveFailedOnce = false; });
+  }
+  // ---------- local device session (remembers who's logged in on this device) ----------
+  function getStoredSession(){
+    try{
+      const raw = localStorage.getItem(ACTIVE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    }catch(e){ return null; }
+  }
+  function setStoredSession(name, token, isAdmin){
+    try{ localStorage.setItem(ACTIVE_KEY, JSON.stringify({ name, token, isAdmin: Boolean(isAdmin) })); }catch(e){}
+  }
+  function clearStoredSession(){
+    try{ localStorage.removeItem(ACTIVE_KEY); }catch(e){}
+  }
+  function getLastName(){
+    try{ return localStorage.getItem(LAST_NAME_KEY) || ''; }catch(e){ return ''; }
+  }
+  function setLastName(name){
+    try{ localStorage.setItem(LAST_NAME_KEY, name); }catch(e){}
+  }
+
+  let activeProfile = null;
+  let isAdminSession = false;
+  let data = { goal:null, entries:[], private:false };
+  let currentView = 'mine';
+
+  // ---------- date utils ----------
+  function todayStr(){ return new Date().toISOString().slice(0,10); }
+  function fmtDateNice(d){
+    const dt = new Date(d + 'T00:00:00');
+    return dt.toLocaleDateString('en-US', {month:'short', day:'numeric'});
+  }
+  function daysBetween(a,b){
+    const A = new Date(a+'T00:00:00');
+    const B = new Date(b+'T00:00:00');
+    return Math.round((B-A)/86400000);
+  }
+  function clamp(n,min,max){ return Math.max(min, Math.min(max,n)); }
+  function round1(n){ return Math.round(n*10)/10; }
+  function round2(n){ return Math.round(n*100)/100; }
+  function addDays(dateStr, n){
+    const d = new Date(dateStr + 'T00:00:00');
+    d.setDate(d.getDate()+n);
+    return d.toISOString().slice(0,10);
+  }
+  function hexToRgb(hex){
+    hex = hex.replace('#','');
+    if(hex.length === 3) hex = hex.split('').map(c => c+c).join('');
+    const num = parseInt(hex, 16);
+    return `${(num>>16)&255}, ${(num>>8)&255}, ${num&255}`;
+  }
+  function initials(name){
+    return name.trim().slice(0,2).toUpperCase();
+  }
+
+  // ======================================================
+  // PROFILE GATE (signup / login)
+  // ======================================================
+  let gateMode = 'login'; // 'login' | 'signup'
+
+  function setGateMode(mode){
+    gateMode = mode;
+    $('gateError').classList.add('hidden');
+    if(mode === 'signup'){
+      $('gateBlurb').textContent = 'Create an account to track your hours — your PIN keeps your data yours.';
+      $('enterBtn').textContent = 'Create account';
+      $('gateModeText').textContent = 'Already have an account?';
+      $('gateModeToggle').textContent = 'Log in';
+      $('pinInput').setAttribute('autocomplete', 'new-password');
+      $('pinInput').placeholder = '••••';
+    } else {
+      $('gateBlurb').textContent = 'Track daily study hours against your target — and see how everyone else is pacing too.';
+      $('enterBtn').textContent = 'Log in';
+      $('gateModeText').textContent = 'New here?';
+      $('gateModeToggle').textContent = 'Create an account';
+      $('pinInput').setAttribute('autocomplete', 'current-password');
+      $('pinInput').placeholder = '••••';
+    }
+  }
+
+  function showGateError(msg){
+    const el = $('gateError');
+    el.textContent = msg;
+    el.classList.remove('hidden');
+  }
+
+  function showBiometricGateError(msg){
+    const el = $('biometricGateError');
+    el.textContent = msg;
+    el.classList.remove('hidden');
+  }
+
+  function showPinLoginForm(){
+    $('pinLoginForm').classList.remove('hidden');
+    $('biometricLoginForm').classList.add('hidden');
+  }
+
+  async function showBiometricLoginFormIfAvailable(){
+    const lastName = getLastName();
+    if(!lastName || !window.SimpleWebAuthnBrowser || !SimpleWebAuthnBrowser.browserSupportsWebAuthn()){
+      showPinLoginForm();
+      return;
+    }
+    const has = await apiHasCredential(lastName);
+    if(!has){ showPinLoginForm(); return; }
+    $('biometricLoginName').textContent = `Welcome back, ${lastName}`;
+    $('biometricGateError').classList.add('hidden');
+    $('pinLoginForm').classList.add('hidden');
+    $('biometricLoginForm').classList.remove('hidden');
+  }
+
+  function showGate(){
+    $('app').classList.add('hidden');
+    $('gate').classList.remove('hidden');
+    $('pinInput').value = '';
+    $('gateError').classList.add('hidden');
+    $('adminLoginForm').classList.add('hidden');
+    setGateMode('login');
+    showBiometricLoginFormIfAvailable();
+  }
+
+  function forceLogout(message){
+    sessionToken = null;
+    activeProfile = null;
+    isAdminSession = false;
+    clearStoredSession();
+    showGate();
+    if(message) showGateError(message);
+  }
+
+  async function enterApp(name, token){
+    sessionToken = token;
+    activeProfile = name;
+    isAdminSession = false;
+    setStoredSession(name, token, false);
+    setLastName(name);
+    $('gate').classList.add('hidden');
+    $('app').classList.remove('hidden');
+    $('profileLabel').textContent = name;
+    $('viewTabs').classList.remove('hidden');
+    $('setupCard').classList.add('hidden');
+    $('dashboard').classList.add('hidden');
+    $('everyoneView').classList.add('hidden');
+    $('loadingState').classList.remove('hidden');
+    try{
+      data = await apiGetProfile(name);
+    }catch(e){
+      if(e instanceof AuthError){ return forceLogout('Your session expired — please log in again.'); }
+      data = { goal:null, entries:[], private:false };
+      alert('Could not reach the shared server — check your connection. You can keep using the app, but your data may not sync yet.');
+    }
+    $('loadingState').classList.add('hidden');
+    initAppForProfile();
+  }
+
+  function enterAdminApp(token){
+    sessionToken = token;
+    activeProfile = null;
+    isAdminSession = true;
+    setStoredSession(null, token, true);
+    $('gate').classList.add('hidden');
+    $('app').classList.remove('hidden');
+    $('profileLabel').textContent = 'Admin';
+    // Admin has no personal goal/entries — only the Everyone view applies.
+    $('viewTabs').classList.add('hidden');
+    $('setupCard').classList.add('hidden');
+    $('dashboard').classList.add('hidden');
+    $('loadingState').classList.add('hidden');
+    currentView = 'everyone';
+    $('everyoneView').classList.remove('hidden');
+    renderEveryone();
+  }
+
+  async function submitGate(){
+    const name = $('nameInput').value.trim();
+    const pin = $('pinInput').value;
+    $('gateError').classList.add('hidden');
+    if(!name){ return showGateError('Enter your name'); }
+    if(!pin){ return showGateError('Enter your 4-digit PIN'); }
+    if(!/^\d{4}$/.test(pin)){ return showGateError('PIN must be exactly 4 digits'); }
+
+    const btn = $('enterBtn');
+    btn.disabled = true;
+    const originalLabel = btn.textContent;
+    btn.textContent = gateMode === 'signup' ? 'Creating…' : 'Logging in…';
+    try{
+      const result = gateMode === 'signup'
+        ? await apiSignup(name, pin)
+        : await apiLogin(name, pin);
+      await enterApp(result.name, result.token);
+    }catch(e){
+      showGateError(e.message || 'Something went wrong');
+    }finally{
+      btn.disabled = false;
+      btn.textContent = originalLabel;
+    }
+  }
+
+  async function submitBiometricLogin(){
+    const name = getLastName();
+    if(!name){ return showPinLoginForm(); }
+    $('biometricGateError').classList.add('hidden');
+    const btn = $('biometricLoginBtn');
+    btn.disabled = true;
+    const originalLabel = btn.textContent;
+    btn.textContent = 'Waiting for Face ID / fingerprint…';
+    try{
+      const result = await loginWithBiometric(name);
+      await enterApp(result.name, result.token);
+    }catch(e){
+      showBiometricGateError(e.message || 'Something went wrong');
+    }finally{
+      btn.disabled = false;
+      btn.textContent = originalLabel;
+    }
+  }
+
+  $('enterBtn').addEventListener('click', submitGate);
+  $('nameInput').addEventListener('keydown', (e) => { if(e.key === 'Enter') submitGate(); });
+  $('pinInput').addEventListener('keydown', (e) => { if(e.key === 'Enter') submitGate(); });
+  $('pinInput').addEventListener('input', () => {
+    $('pinInput').value = $('pinInput').value.replace(/\D/g, '').slice(0, 4);
+  });
+  $('gateModeToggle').addEventListener('click', (e) => {
+    e.preventDefault();
+    setGateMode(gateMode === 'signup' ? 'login' : 'signup');
+  });
+
+  $('biometricLoginBtn').addEventListener('click', submitBiometricLogin);
+  $('useDifferentLoginBtn').addEventListener('click', () => {
+    showPinLoginForm();
+    $('nameInput').value = getLastName();
+    $('pinInput').focus();
+  });
+
+  $('switchProfileBtn').addEventListener('click', () => {
+    forceLogout();
+    $('nameInput').value = '';
+  });
+
+  $('logoutBtn').addEventListener('click', () => {
+    forceLogout();
+    $('nameInput').value = '';
+  });
+
+  $('showAdminLoginBtn').addEventListener('click', () => {
+    $('adminLoginForm').classList.remove('hidden');
+    $('adminPasscodeInput').value = '';
+    $('adminGateError').classList.add('hidden');
+    $('adminPasscodeInput').focus();
+  });
+  $('hideAdminLoginBtn').addEventListener('click', () => {
+    $('adminLoginForm').classList.add('hidden');
+  });
+  function showAdminGateError(msg){
+    const el = $('adminGateError');
+    el.textContent = msg;
+    el.classList.remove('hidden');
+  }
+  async function submitAdminLogin(){
+    const passcode = $('adminPasscodeInput').value;
+    $('adminGateError').classList.add('hidden');
+    if(!passcode){ return showAdminGateError('Enter the admin passcode'); }
+    const btn = $('adminEnterBtn');
+    btn.disabled = true;
+    const originalLabel = btn.textContent;
+    btn.textContent = 'Logging in…';
+    try{
+      const result = await apiAdminLogin(passcode);
+      enterAdminApp(result.token);
+    }catch(e){
+      showAdminGateError(e.message || 'Something went wrong');
+    }finally{
+      btn.disabled = false;
+      btn.textContent = originalLabel;
+    }
+  }
+  $('adminEnterBtn').addEventListener('click', submitAdminLogin);
+  $('adminPasscodeInput').addEventListener('keydown', (e) => { if(e.key === 'Enter') submitAdminLogin(); });
+
+  $('themeToggle').addEventListener('click', () => {
+    const current = document.documentElement.getAttribute('data-theme') || 'light';
+    const next = current === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+    if(currentView === 'everyone'){ renderEveryone(); }
+    else if(data.goal){ render(); }
+  });
+
+  // ======================================================
+  // GOAL SETUP
+  // ======================================================
+  function showSetup(){
+    $('setupCard').classList.remove('hidden');
+    $('dashboard').classList.add('hidden');
+    if(data.goal){
+      $('dailyTargetInput').value = data.goal.dailyTarget;
+      $('startDate').value = data.goal.start;
+      $('endDate').value = data.goal.end;
+      updateTotalPreview();
+    }
+  }
+  function showDashboard(){
+    $('setupCard').classList.add('hidden');
+    $('dashboard').classList.remove('hidden');
+  }
+
+  function updateTotalPreview(){
+    const dailyTarget = parseFloat($('dailyTargetInput').value);
+    const start = $('startDate').value;
+    const end = $('endDate').value;
+    const row = $('totalPreviewRow');
+    if(dailyTarget > 0 && start && end && new Date(end) > new Date(start)){
+      const totalDays = daysBetween(start, end) + 1;
+      const total = dailyTarget * totalDays;
+      $('totalPreview').textContent = `${round1(total)} hrs total over ${totalDays} days`;
+      row.style.display = 'block';
+    } else {
+      row.style.display = 'none';
+    }
+  }
+  $('dailyTargetInput').addEventListener('input', updateTotalPreview);
+  $('startDate').addEventListener('input', updateTotalPreview);
+  $('endDate').addEventListener('input', updateTotalPreview);
+
+  $('saveGoalBtn').addEventListener('click', () => {
+    const dailyTarget = parseFloat($('dailyTargetInput').value);
+    const start = $('startDate').value;
+    const end = $('endDate').value;
+    if(!dailyTarget || dailyTarget <= 0){ alert('Enter a valid daily target.'); return; }
+    if(!start || !end){ alert('Enter both start and end dates.'); return; }
+    if(new Date(end) <= new Date(start)){ alert('End date must be after start date.'); return; }
+    const totalDays = daysBetween(start, end) + 1;
+    const totalHours = dailyTarget * totalDays;
+    data.goal = { totalHours, dailyTarget, start, end };
+    saveProfileData(activeProfile, data);
+    showDashboard();
+    render();
+  });
+
+  $('editGoalBtn').addEventListener('click', showSetup);
+
+  $('privacyToggle').addEventListener('click', () => {
+    data.private = !data.private;
+    $('privacyToggle').setAttribute('aria-checked', String(data.private));
+    saveProfileData(activeProfile, data);
+  });
+
+  $('resetAllBtn').addEventListener('click', () => {
+    if(confirm(`This clears ${activeProfile}'s target and every logged entry. Are you sure?`)){
+      data = { goal:null, entries:[], private: data.private };
+      saveProfileData(activeProfile, data);
+      showSetup();
+      $('dailyTargetInput').value='';
+      $('startDate').value='';
+      $('endDate').value='';
+      $('totalPreviewRow').style.display='none';
+    }
+  });
+
+  // ======================================================
+  // ENTRIES
+  // ======================================================
+  function commitEntry(date, hours){
+    const existingIdx = data.entries.findIndex(e => e.date === date);
+    if(existingIdx >= 0){
+      data.entries[existingIdx].hours = hours;
+    } else {
+      data.entries.push({date, hours});
+    }
+    data.entries.sort((a,b) => a.date < b.date ? 1 : -1);
+    saveProfileData(activeProfile, data);
+    render();
+  }
+
+  $('addEntryBtn').addEventListener('click', () => {
+    const date = $('entryDate').value;
+    const hours = parseFloat($('entryHours').value);
+    if(!date){ alert('Pick a date.'); return; }
+    if(isNaN(hours) || hours < 0){ alert('Enter valid hours.'); return; }
+    commitEntry(date, hours);
+    $('entryHours').value = '';
+    updateSessionHint();
+  });
+
+  $('addSessionBtn').addEventListener('click', () => {
+    const date = $('entryDate').value;
+    const hours = parseFloat($('entryHours').value);
+    if(!date){ alert('Pick a date.'); return; }
+    if(isNaN(hours) || hours <= 0){ alert('Enter valid hours.'); return; }
+    const existing = data.entries.find(e => e.date === date);
+    const newTotal = round2((existing ? existing.hours : 0) + hours);
+    commitEntry(date, newTotal);
+    $('entryHours').value = '';
+    updateSessionHint();
+  });
+
+  function updateSessionHint(){
+    const hintEl = $('sessionHint');
+    if(!hintEl) return;
+    const date = $('entryDate').value;
+    if(!date){ hintEl.textContent = ''; return; }
+    const existing = data.entries.find(e => e.date === date);
+    if(existing && existing.hours > 0){
+      hintEl.textContent = `${round1(existing.hours)} hrs already logged for ${fmtDateNice(date)} — "+ Add session" will stack on top, "Set total" will replace it.`;
+    } else {
+      hintEl.textContent = `No hours logged yet for ${fmtDateNice(date)}.`;
+    }
+  }
+  $('entryDate').addEventListener('change', updateSessionHint);
+  $('entryDate').addEventListener('input', updateSessionHint);
+
+  function setupQuickAdd(){
+    const target = data.goal ? data.goal.dailyTarget : 8;
+    const presets = [target, round1(target*0.5), round1(target+1)];
+    const labels = ['Target', 'Half', '+1hr'];
+    const quickAdd = $('quickAdd');
+    quickAdd.innerHTML = '';
+    presets.forEach((p, i) => {
+      const btn = document.createElement('button');
+      btn.textContent = `${labels[i]} · ${round1(p)}h`;
+      btn.addEventListener('click', () => { $('entryHours').value = p; });
+      quickAdd.appendChild(btn);
+    });
+  }
+
+  function deleteEntry(date){
+    data.entries = data.entries.filter(e => e.date !== date);
+    saveProfileData(activeProfile, data);
+    render();
+    updateSessionHint();
+  }
+
+  // ======================================================
+  // CHART
+  // ======================================================
+  function drawChart(start, end, dailyTarget){
+    const canvas = $('progressChart');
+    const emptyEl = $('chartEmpty');
+    if(!canvas) return;
+
+    if(data.entries.length === 0){
+      canvas.classList.add('hidden');
+      emptyEl.classList.remove('hidden');
+      return;
+    }
+    canvas.classList.remove('hidden');
+    emptyEl.classList.add('hidden');
+
+    const entryMap = {};
+    data.entries.forEach(e => entryMap[e.date] = e.hours);
+    const today = todayStr();
+    const lastLogged = data.entries.reduce((m,e) => e.date > m ? e.date : m, data.entries[0].date);
+    const laterOfTodayLogged = lastLogged > today ? lastLogged : today;
+    const chartEnd = laterOfTodayLogged > end ? end : laterOfTodayLogged;
+    const totalDays = daysBetween(start, end) + 1;
+    const chartDays = clamp(daysBetween(start, chartEnd) + 1, 1, totalDays);
+
+    const actualPoints = [];
+    let running = 0;
+    for(let i=0;i<chartDays;i++){
+      const d = addDays(start, i);
+      if(entryMap[d] !== undefined) running += entryMap[d];
+      actualPoints.push(running);
+    }
+    const idealPoints = [];
+    for(let i=0;i<chartDays;i++){
+      idealPoints.push(dailyTarget * (i+1));
+    }
+
+    function paint(){
+      const cssWidth = canvas.parentElement.clientWidth;
+      if(!cssWidth || cssWidth < 10){
+        // container not laid out yet — try again next frame
+        requestAnimationFrame(paint);
+        return;
+      }
+      const dpr = window.devicePixelRatio || 1;
+      const cssHeight = 200;
+      canvas.style.width = cssWidth + 'px';
+      canvas.style.height = cssHeight + 'px';
+      canvas.width = Math.round(cssWidth * dpr);
+      canvas.height = Math.round(cssHeight * dpr);
+      const ctx = canvas.getContext('2d');
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+      ctx.clearRect(0,0,cssWidth,cssHeight);
+
+      const cs = getComputedStyle(document.documentElement);
+      const colorLine = cs.getPropertyValue('--line').trim() || '#E8E7E3';
+      const colorInkFaint = cs.getPropertyValue('--ink-faint').trim() || '#B8BABE';
+      const colorInkSoft = cs.getPropertyValue('--ink-soft').trim() || '#888B91';
+      const colorAccent = cs.getPropertyValue('--accent').trim() || '#3A5A78';
+      const colorCard = cs.getPropertyValue('--card').trim() || '#FFFFFF';
+      const accentRgb = hexToRgb(colorAccent);
+
+      const padL = 34, padR = 8, padT = 10, padB = 22;
+      const plotW = cssWidth - padL - padR;
+      const plotH = cssHeight - padT - padB;
+
+      const maxVal = Math.max(
+        idealPoints[idealPoints.length-1] || 0,
+        Math.max(...actualPoints),
+        dailyTarget
+      ) * 1.12 || 1;
+
+      function xAt(i){ return padL + (chartDays===1 ? plotW : (plotW * i/(chartDays-1))); }
+      function yAt(v){ return padT + plotH - (plotH * (v/maxVal)); }
+
+      // gridlines
+      ctx.strokeStyle = colorLine;
+      ctx.lineWidth = 1;
+      ctx.font = '500 10px Inter, sans-serif';
+      ctx.fillStyle = colorInkFaint;
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'middle';
+      const gridSteps = 4;
+      for(let g=0; g<=gridSteps; g++){
+        const v = (maxVal/gridSteps)*g;
+        const y = yAt(v);
+        ctx.beginPath();
+        ctx.moveTo(padL, y);
+        ctx.lineTo(cssWidth - padR, y);
+        ctx.stroke();
+        ctx.fillText(Math.round(v) + 'h', padL - 7, y);
+      }
+
+      // x labels
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      const labelIdxs = chartDays > 1 ? [0, Math.floor((chartDays-1)/2), chartDays-1] : [0];
+      labelIdxs.forEach(i => {
+        const d = addDays(start, i);
+        ctx.fillText(fmtDateNice(d), xAt(i), cssHeight - padB + 6);
+      });
+
+      // ideal line
+      ctx.beginPath();
+      ctx.setLineDash([4,4]);
+      ctx.strokeStyle = colorInkFaint;
+      ctx.lineWidth = 1.5;
+      idealPoints.forEach((v,i) => {
+        const x = xAt(i), y = yAt(v);
+        if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      });
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // actual line + fill
+      const grad = ctx.createLinearGradient(0, padT, 0, padT+plotH);
+      grad.addColorStop(0, `rgba(${accentRgb}, 0.18)`);
+      grad.addColorStop(1, `rgba(${accentRgb}, 0.01)`);
+
+      ctx.beginPath();
+      actualPoints.forEach((v,i) => {
+        const x = xAt(i), y = yAt(v);
+        if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      });
+      ctx.lineTo(xAt(chartDays-1), yAt(0));
+      ctx.lineTo(xAt(0), yAt(0));
+      ctx.closePath();
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.strokeStyle = colorAccent;
+      ctx.lineWidth = 2.25;
+      ctx.lineJoin = 'round';
+      ctx.lineCap = 'round';
+      actualPoints.forEach((v,i) => {
+        const x = xAt(i), y = yAt(v);
+        if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      });
+      ctx.stroke();
+
+      // last point dot
+      const lastX = xAt(chartDays-1);
+      const lastY = yAt(actualPoints[actualPoints.length-1]);
+      ctx.beginPath();
+      ctx.arc(lastX, lastY, 4, 0, Math.PI*2);
+      ctx.fillStyle = colorAccent;
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(lastX, lastY, 4, 0, Math.PI*2);
+      ctx.strokeStyle = colorCard;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
+    requestAnimationFrame(paint);
+  }
+
+  // ======================================================
+  // EVERYONE VIEW
+  // ======================================================
+  async function renderEveryone(){
+    const list = $('everyoneList');
+    list.innerHTML = '<div class="empty-log">Loading everyone\'s progress…</div>';
+    let result;
+    try{
+      result = await apiGetProfiles();
+    }catch(e){
+      if(e instanceof AuthError){ return forceLogout('Your session expired — please log in again.'); }
+      list.innerHTML = '<div class="empty-log">Could not load shared data. Check your connection and try again.</div>';
+      return;
+    }
+    const summaries = result.summaries || [];
+    const viewerIsAdmin = Boolean(result.isAdmin);
+    if(!summaries.length){
+      list.innerHTML = '<div class="empty-log">No one has joined yet.</div>';
+      return;
+    }
+    summaries.sort((a,b) => {
+      if(a.hasGoal && !b.hasGoal) return -1;
+      if(!a.hasGoal && b.hasGoal) return 1;
+      const aHidden = a.private && !viewerIsAdmin;
+      const bHidden = b.private && !viewerIsAdmin;
+      if(a.hasGoal && b.hasGoal && !aHidden && !bHidden) return b.balance - a.balance;
+      return a.name.localeCompare(b.name);
+    });
+    list.innerHTML = '';
+    summaries.forEach(s => {
+      const row = document.createElement('div');
+      row.className = 'person-row' + (s.name === activeProfile ? ' is-me' : '');
+      // Numbers are only stripped server-side for non-admins; admin gets
+      // real values back even when `private` is true, so check both.
+      const hiddenFromMe = s.private && !viewerIsAdmin;
+      if(hiddenFromMe){
+        row.innerHTML = `
+          <div class="person-top">
+            <span class="avatar">${initials(s.name)}</span>
+            <span class="person-name">${escapeHtml(s.name)}</span>
+            <span class="person-bal even">Private</span>
+          </div>`;
+        list.appendChild(row);
+        return;
+      }
+      if(!s.hasGoal){
+        row.innerHTML = `
+          <div class="person-top">
+            <span class="avatar">${initials(s.name)}</span>
+            <span class="person-name">${escapeHtml(s.name)}</span>
+            <span class="person-bal even">No target set</span>
+          </div>`;
+        list.appendChild(row);
+        return;
+      }
+      const balClass = Math.abs(s.balance) < 0.05 ? 'even' : (s.balance > 0 ? 'ahead' : 'behind');
+      const balText = Math.abs(s.balance) < 0.05 ? 'On pace' : (s.balance > 0 ? '+' + s.balance + 'h' : '−' + Math.abs(s.balance) + 'h');
+      const adminPrivateBadge = (viewerIsAdmin && s.private)
+        ? `<span class="admin-private-badge" title="Hidden from everyone except you, the admin">Hidden from others</span>`
+        : '';
+      row.innerHTML = `
+        <div class="person-top">
+          <span class="avatar">${initials(s.name)}</span>
+          <span class="person-name">${escapeHtml(s.name)}</span>
+          <span class="person-bal ${balClass}">${balText}</span>
+        </div>
+        <div class="person-track"><div class="person-fill" style="width:${s.pct}%"></div></div>
+        <div class="person-meta">${round1(s.dailyTarget)}h/day · ${s.daysRemaining} days left ${adminPrivateBadge}</div>
+      `;
+      list.appendChild(row);
+    });
+  }
+
+  function switchView(view){
+    currentView = view;
+    $('viewTabs').querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.view === view));
+    if(view === 'everyone'){
+      $('setupCard').classList.add('hidden');
+      $('dashboard').classList.add('hidden');
+      $('everyoneView').classList.remove('hidden');
+      renderEveryone();
+    } else {
+      $('everyoneView').classList.add('hidden');
+      render();
+    }
+  }
+  $('viewTabs').querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => switchView(btn.dataset.view));
+  });
+
+  // ======================================================
+  // RENDER
+  // ======================================================
+  function computeStreak(start, end, dailyTarget){
+    const entryMap = {};
+    data.entries.forEach(e => entryMap[e.date] = e.hours);
+    const today = todayStr();
+    let cursor = today < end ? today : end;
+    if(!(cursor in entryMap)){
+      cursor = addDays(cursor, -1);
+    }
+    let streak = 0;
+    while(cursor >= start){
+      const hrs = entryMap[cursor];
+      if(hrs !== undefined && hrs >= dailyTarget - 0.0001){
+        streak++;
+        cursor = addDays(cursor, -1);
+      } else {
+        break;
+      }
+    }
+    return streak;
+  }
+
+  function updateDeadlineBanner(){
+    const banner = $('deadlineBanner');
+    if(!data.goal){ banner.classList.add('hidden'); return; }
+    const today = todayStr();
+    const isPast = today > data.goal.end;
+    banner.classList.toggle('hidden', !isPast);
+    if(isPast){
+      $('deadlineBannerSub').textContent = `Your target ran through ${fmtDateNice(data.goal.end)}.`;
+      $('deadlineExtendRow').classList.add('hidden');
+      $('extendDeadlineBtn').classList.remove('hidden');
+    }
+  }
+
+  $('extendDeadlineBtn').addEventListener('click', () => {
+    $('newEndDateInput').value = '';
+    $('newEndDateInput').min = addDays(data.goal.end, 1);
+    $('deadlineExtendRow').classList.remove('hidden');
+    $('extendDeadlineBtn').classList.add('hidden');
+  });
+
+  $('cancelExtendBtn').addEventListener('click', () => {
+    $('deadlineExtendRow').classList.add('hidden');
+    $('extendDeadlineBtn').classList.remove('hidden');
+  });
+
+  $('confirmExtendBtn').addEventListener('click', () => {
+    const newEnd = $('newEndDateInput').value;
+    if(!newEnd){ alert('Pick a new end date.'); return; }
+    if(newEnd <= data.goal.end){ alert('New end date must be after the current one.'); return; }
+    const addedDays = daysBetween(data.goal.end, newEnd);
+    const addedHours = addedDays * data.goal.dailyTarget;
+    data.goal = { ...data.goal, end: newEnd, totalHours: data.goal.totalHours + addedHours };
+    saveProfileData(activeProfile, data);
+    $('deadlineExtendRow').classList.add('hidden');
+    render();
+  });
+
+  function render(){
+    if(!data.goal){ showSetup(); return; }
+    showDashboard();
+    setupQuickAdd();
+    updateDeadlineBanner();
+
+    const { totalHours, dailyTarget, start, end } = data.goal;
+    const totalDays = daysBetween(start, end) + 1;
+
+    const today = todayStr();
+    const clampedToday = today < start ? start : (today > end ? end : today);
+    let elapsedDays = daysBetween(start, clampedToday) + 1;
+    elapsedDays = clamp(elapsedDays, 0, totalDays);
+
+    const loggedTotal = data.entries.reduce((s,e) => s + e.hours, 0);
+    const expectedSoFar = dailyTarget * elapsedDays;
+    const balance = loggedTotal - expectedSoFar;
+
+    const daysRemaining = Math.max(0, daysBetween(today > end ? end : today, end));
+
+    const balEl = $('balanceNumber');
+    const subEl = $('balanceSub');
+    const absBal = Math.abs(balance);
+
+    if(loggedTotal === 0){
+      balEl.textContent = '0.0 hrs';
+      balEl.className = 'hero-number even';
+      subEl.textContent = 'No entries yet';
+    } else if(Math.abs(balance) < 0.05){
+      balEl.textContent = '0.0 hrs';
+      balEl.className = 'hero-number even';
+      subEl.textContent = 'Exactly on pace';
+    } else if(balance > 0){
+      balEl.textContent = '+' + round1(balance) + ' hrs';
+      balEl.className = 'hero-number ahead';
+      subEl.textContent = 'Ahead of schedule';
+    } else {
+      balEl.textContent = '−' + round1(absBal) + ' hrs';
+      balEl.className = 'hero-number behind';
+      subEl.textContent = 'Behind schedule';
+    }
+
+    $('dailyTarget').textContent = round1(dailyTarget) + 'h';
+    $('loggedSoFar').textContent = round1(loggedTotal) + 'h';
+    $('daysRemaining').textContent = daysRemaining;
+
+    const pct = clamp((loggedTotal/totalHours)*100, 0, 100);
+    const expectedPct = clamp((expectedSoFar/totalHours)*100, 0, 100);
+    $('progressFill').style.width = pct.toFixed(1) + '%';
+    $('progressMarker').style.left = expectedPct.toFixed(1) + '%';
+    $('progressPct').textContent = round1(loggedTotal) + ' / ' + round1(totalHours) + ' hrs';
+    $('progressGoal').textContent = fmtDateNice(start) + ' – ' + fmtDateNice(end);
+
+    drawChart(start, end, dailyTarget);
+
+    const logList = $('logList');
+    if(data.entries.length === 0){
+      logList.innerHTML = '<div class="empty-log">No entries yet — log your first day above.</div>';
+    } else {
+      logList.innerHTML = '';
+      const ascending = [...data.entries].sort((a,b) => a.date < b.date ? -1 : 1);
+      const cumByDate = {};
+      let running = 0;
+      ascending.forEach(e => {
+        running += e.hours;
+        const dayNum = clamp(daysBetween(start, e.date) + 1, 0, totalDays);
+        const expectedAtDay = dailyTarget * dayNum;
+        cumByDate[e.date] = running - expectedAtDay;
+      });
+
+      data.entries.forEach(e => {
+        const row = document.createElement('div');
+        row.className = 'log-row';
+        const d = cumByDate[e.date];
+        const deltaClass = d >= 0 ? 'ahead' : 'behind';
+        const deltaText = (d >= 0 ? '+' : '−') + round1(Math.abs(d)) + 'h';
+        row.innerHTML = `
+          <span class="date-txt">${fmtDateNice(e.date)}</span>
+          <span class="hrs">${round1(e.hours)} hrs</span>
+          <span class="delta ${deltaClass}">${deltaText}</span>
+          <button class="del-btn" title="Delete entry" data-date="${e.date}">✕</button>
+        `;
+        logList.appendChild(row);
+      });
+      logList.querySelectorAll('.del-btn').forEach(btn => {
+        btn.addEventListener('click', () => deleteEntry(btn.getAttribute('data-date')));
+      });
+    }
+  }
+
+  async function refreshNotifRow(){
+    const row = $('notifRow');
+    if(!('serviceWorker' in navigator) || !('PushManager' in window)){
+      row.classList.add('hidden');
+      return;
+    }
+    if(Notification.permission === 'denied'){
+      row.classList.remove('hidden');
+      $('notifRowTitle').textContent = 'Daily reminders are blocked';
+      $('notifRowHint').textContent = 'Notifications were blocked for this site in your browser settings.';
+      $('notifSetupBtn').textContent = 'Blocked';
+      $('notifSetupBtn').disabled = true;
+      $('notifSetupBtn').dataset.mode = 'blocked';
+      return;
+    }
+    row.classList.remove('hidden');
+    $('notifSetupBtn').disabled = false;
+    const sub = await getExistingPushSubscription();
+    const btn = $('notifSetupBtn');
+    if(sub && Notification.permission === 'granted'){
+      $('notifRowTitle').textContent = 'Daily reminders are on';
+      $('notifRowHint').textContent = "You'll get a nudge if you haven't logged your hours yet.";
+      btn.textContent = 'Turn off';
+      btn.dataset.mode = 'remove';
+    } else {
+      $('notifRowTitle').textContent = 'Daily reminders';
+      $('notifRowHint').textContent = "Get a nudge if you haven't logged your hours yet.";
+      btn.textContent = 'Enable';
+      btn.dataset.mode = 'setup';
+    }
+  }
+
+  $('notifSetupBtn').addEventListener('click', async () => {
+    const btn = $('notifSetupBtn');
+    const mode = btn.dataset.mode;
+    if(mode === 'blocked') return;
+    btn.disabled = true;
+    try{
+      if(mode === 'remove'){
+        await disablePushNotifications();
+      } else {
+        await enablePushNotifications();
+      }
+      await refreshNotifRow();
+    }catch(e){
+      if(e instanceof AuthError){ return forceLogout('Your session expired — please log in again.'); }
+      alert(e.message || 'Something went wrong');
+    }finally{
+      btn.disabled = false;
+    }
+  });
+
+  // ======================================================
+  // INIT
+  // ======================================================
+  async function refreshBiometricRow(){
+    const row = $('biometricRow');
+    if(!window.SimpleWebAuthnBrowser || !SimpleWebAuthnBrowser.browserSupportsWebAuthn()){
+      row.classList.add('hidden');
+      return;
+    }
+    row.classList.remove('hidden');
+    const has = await apiHasCredential(activeProfile);
+    const btn = $('biometricSetupBtn');
+    if(has){
+      $('biometricRowTitle').textContent = 'Face ID / fingerprint is set up';
+      $('biometricRowHint').textContent = 'This device can log in without your PIN. Remove it if this isn\'t your device.';
+      btn.textContent = 'Remove';
+      btn.dataset.mode = 'remove';
+    } else {
+      $('biometricRowTitle').textContent = 'Use Face ID / fingerprint on this device';
+      $('biometricRowHint').textContent = 'Skip typing your PIN next time you log in on this device.';
+      btn.textContent = 'Set up';
+      btn.dataset.mode = 'setup';
+    }
+  }
+
+  $('biometricSetupBtn').addEventListener('click', async () => {
+    const btn = $('biometricSetupBtn');
+    const mode = btn.dataset.mode;
+    btn.disabled = true;
+    try{
+      if(mode === 'remove'){
+        if(!confirm('Remove Face ID / fingerprint login from this device? You\'ll need your PIN next time.')) return;
+        await removeBiometric();
+      } else {
+        await registerBiometric();
+      }
+      await refreshBiometricRow();
+    }catch(e){
+      if(e instanceof AuthError){ return forceLogout('Your session expired — please log in again.'); }
+      alert(e.message || 'Something went wrong');
+    }finally{
+      btn.disabled = false;
+    }
+  });
+
+  function initAppForProfile(){
+    $('entryDate').value = todayStr();
+    $('entryDate').max = todayStr();
+    updateSessionHint();
+    currentView = 'mine';
+    $('viewTabs').querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.view === 'mine'));
+    $('everyoneView').classList.add('hidden');
+    $('privacyToggle').setAttribute('aria-checked', String(Boolean(data.private)));
+    refreshBiometricRow();
+    refreshNotifRow();
+    if(data.goal){
+      showDashboard();
+      render();
+    } else {
+      showSetup();
+    }
+  }
+
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => { if(currentView === 'mine' && data.goal) render(); }, 150);
+  });
+
+  // boot: auto-enter using a saved session token on this device, else show gate
+  showGate();
+  const savedSession = getStoredSession();
+  if(savedSession && savedSession.isAdmin && savedSession.token){
+    enterAdminApp(savedSession.token);
+  } else if(savedSession && savedSession.name && savedSession.token){
+    enterApp(savedSession.name, savedSession.token);
+  }
+})();
+</script>
+</body>
+</html>
