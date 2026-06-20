@@ -1,4 +1,4 @@
-# Pace Tracker — Cloudflare Workers version
+# Pace Tra cker — Cloudflare Workers version
 
 This is your app ported from Netlify (Functions + Blobs) to a single
 Cloudflare Worker (Workers + KV + Cron Triggers). One project, one deploy,
