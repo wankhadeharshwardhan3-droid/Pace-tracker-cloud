@@ -1,0 +1,23 @@
+{
+  "name": "pace-tracker",
+  "main": "src/index.js",
+  "compatibility_date": "2026-06-20",
+  "compatibility_flags": ["nodejs_compat"],
+
+  "assets": {
+    "directory": "./public/",
+    "not_found_handling": "single-page-application",
+    "binding": "ASSETS"
+  },
+
+  "kv_namespaces": [
+    {
+      "binding": "PACE_KV",
+      "id": "d4c7639728fa4c109dd4c903a3f44646"
+    }
+  ],
+
+  "triggers": {
+    "crons": ["30 3 * * *", "30 16 * * *"]
+  }
+}
