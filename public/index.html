@@ -130,6 +130,52 @@
   }
   button.text:hover{color:var(--ink);}
   button:disabled{opacity:0.4; cursor:not-allowed;}
+  button.danger{
+    background:var(--warn);
+    color:var(--bg);
+  }
+  button.danger:hover{opacity:0.85;}
+
+  /* ---------- modal ---------- */
+  .modal-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.45);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    z-index:50;
+  }
+  .modal-card{
+    background:var(--card);
+    border-radius:16px;
+    padding:24px;
+    max-width:380px;
+    width:100%;
+    box-shadow:0 12px 40px rgba(0,0,0,0.25);
+  }
+  .modal-card h2{
+    font-family:'Source Serif 4', serif;
+    font-size:1.1rem;
+    font-weight:600;
+    margin:0 0 10px;
+  }
+  .modal-card .hint{
+    margin:0 0 16px;
+    color:var(--ink-soft);
+    font-size:0.85rem;
+    line-height:1.5;
+  }
+  .modal-card .field{
+    margin-bottom:14px;
+  }
+  .modal-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    margin-top:4px;
+  }
 
   /* ---------- profile gate ---------- */
   .gate{
@@ -441,28 +487,53 @@
     font-weight:600;
     font-size:0.78rem;
     color:var(--ink-soft);
-    margin-bottom:8px;
+    margin-bottom:10px;
   }
   .progress-track{
-    height:6px;
+    height:10px;
     background:var(--line);
     border-radius:99px;
-    overflow:hidden;
     position:relative;
+  }
+  .progress-fill-clip{
+    height:100%;
+    border-radius:99px;
+    overflow:hidden;
   }
   .progress-fill{
     height:100%;
-    background:var(--ink);
+    width:0%;
     border-radius:99px;
-    transition:width 0.5s ease;
+    background:linear-gradient(90deg, var(--accent) 0%, var(--ink) 100%);
+    box-shadow:0 0 10px 0 rgba(58,90,120,0.35);
+    transition:width 0.6s cubic-bezier(.4,0,.2,1);
   }
   .progress-marker{
     position:absolute;
-    top:-3px;
+    top:-4px;
     width:2px;
-    height:12px;
+    height:18px;
+    border-radius:2px;
     background:var(--warn);
-    opacity:0.7;
+    opacity:0.8;
+  }
+
+  /* ---------- thought of the day ---------- */
+  .quote-card{
+    margin-bottom:26px;
+    padding:18px 20px;
+    border-left:2px solid var(--accent);
+    background:var(--accent-soft);
+    border-radius:0 12px 12px 0;
+  }
+  .quote-text{
+    margin:0;
+    font-family:'Source Serif 4', serif;
+    font-style:italic;
+    font-weight:500;
+    font-size:0.95rem;
+    line-height:1.55;
+    color:var(--ink);
   }
 
   /* ---------- entry card ---------- */
@@ -480,8 +551,11 @@
     margin:0 0 14px;
   }
   .entry-row{display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;}
-  .entry-row .field{flex:1; min-width:120px;}
+  .entry-row .field{flex:1 1 140px; min-width:0;}
+  .entry-row .field-date{flex:1.2 1 150px;}
+  .entry-row .field-hours{flex:1 1 130px;}
   .entry-row button{flex-shrink:0;}
+  .entry-row input[type="date"]{min-width:0;}
 
   .quick-add{
     display:flex;
@@ -499,6 +573,69 @@
   .quick-add button:hover{border-color:var(--accent); color:var(--accent);}
 
   .session-hint{
+    margin:12px 0 0;
+    font-size:0.78rem;
+    color:var(--ink-soft);
+    min-height:1.1em;
+  }
+
+  /* ---------- study timer ---------- */
+  .timer-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:20px;
+    margin-bottom:26px;
+    text-align:center;
+  }
+  .timer-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    text-align:left;
+    margin-bottom:14px;
+  }
+  .timer-head h2{
+    font-family:'Source Serif 4', serif;
+    font-size:1.05rem;
+    font-weight:600;
+    margin:0;
+  }
+  .timer-status{
+    font-size:0.72rem;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+    color:var(--ink-faint);
+  }
+  .timer-status.running{color:var(--accent);}
+  .timer-display{
+    font-family:'Source Serif 4', serif;
+    font-size:2.4rem;
+    font-weight:600;
+    letter-spacing:0.02em;
+    margin:6px 0 16px;
+    color:var(--ink);
+    font-variant-numeric:tabular-nums;
+  }
+  .timer-btn{
+    width:100%;
+    padding:12px;
+    border-radius:10px;
+    border:none;
+    font-weight:600;
+    font-size:0.92rem;
+    cursor:pointer;
+    background:var(--ink);
+    color:var(--bg);
+    transition:opacity 0.15s ease, background 0.15s ease;
+  }
+  .timer-btn:hover{opacity:0.88;}
+  .timer-btn.is-running{
+    background:var(--warn);
+    color:var(--bg);
+  }
+  .timer-hint{
     margin:12px 0 0;
     font-size:0.78rem;
     color:var(--ink-soft);
@@ -549,6 +686,54 @@
     line-height:1;
   }
   .log-row .del-btn:hover{color:var(--warn);}
+
+  .log-group{
+    border-bottom:1px solid var(--line);
+  }
+  .log-group .log-row{
+    border-bottom:none;
+  }
+  .session-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:7px 0 7px 4px;
+    font-size:0.78rem;
+    color:var(--ink-soft);
+  }
+  .session-row .session-dot{
+    width:5px;
+    height:5px;
+    border-radius:50%;
+    background:var(--ink-faint);
+    flex-shrink:0;
+  }
+  .session-row .session-time{
+    flex:1;
+  }
+  .session-row .session-tag{
+    font-size:0.68rem;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:0.03em;
+    color:var(--ink-faint);
+  }
+  .session-row .session-hrs{
+    font-weight:600;
+    color:var(--ink);
+    min-width:36px;
+    text-align:right;
+  }
+  .session-row .session-del-btn{
+    background:none;
+    border:none;
+    color:var(--ink-faint);
+    cursor:pointer;
+    font-size:0.78rem;
+    padding:2px 4px;
+    line-height:1;
+  }
+  .session-row .session-del-btn:hover{color:var(--warn);}
   .empty-log{
     text-align:center;
     color:var(--ink-faint);
@@ -734,6 +919,17 @@
     text-transform:uppercase;
     letter-spacing:0.03em;
   }
+  .person-del-btn{
+    background:none;
+    border:none;
+    color:var(--ink-faint);
+    cursor:pointer;
+    font-size:0.85rem;
+    padding:2px 4px;
+    line-height:1;
+    flex-shrink:0;
+  }
+  .person-del-btn:hover{color:var(--warn);}
 
   @media (max-width:380px){
     .hero-number{font-size:2.6rem;}
@@ -882,9 +1078,15 @@
           <span id="progressGoal">of goal</span>
         </div>
         <div class="progress-track">
-          <div class="progress-fill" id="progressFill" style="width:0%"></div>
+          <div class="progress-fill-clip">
+            <div class="progress-fill" id="progressFill" style="width:0%"></div>
+          </div>
           <div class="progress-marker" id="progressMarker" style="left:0%"></div>
         </div>
+      </div>
+
+      <div class="quote-card" id="quoteCard">
+        <p class="quote-text" id="quoteText"></p>
       </div>
 
       <div class="chart-card">
@@ -901,14 +1103,24 @@
         </div>
       </div>
 
+      <div class="timer-card">
+        <div class="timer-head">
+          <h2>Study timer</h2>
+          <span class="timer-status" id="timerStatus">Not running</span>
+        </div>
+        <div class="timer-display" id="timerDisplay">00:00:00</div>
+        <button class="timer-btn" id="timerToggleBtn">Start</button>
+        <p class="hint timer-hint" id="timerHint">Starts a session for today. Stopping logs it automatically.</p>
+      </div>
+
       <div class="entry-card">
         <h2>Log today</h2>
         <div class="entry-row">
-          <div class="field">
+          <div class="field field-date">
             <label for="entryDate">Date</label>
             <input type="date" id="entryDate">
           </div>
-          <div class="field">
+          <div class="field field-hours">
             <label for="entryHours">Hours studied</label>
             <input type="number" id="entryHours" step="0.25" min="0" placeholder="e.g. 7.5">
           </div>
@@ -968,10 +1180,28 @@
 
 </div>
 
+<!-- ADMIN: delete account confirmation -->
+<div class="modal-overlay hidden" id="deleteAccountModal">
+  <div class="modal-card">
+    <h2>Delete account</h2>
+    <p class="hint" id="deleteAccountMessage">This permanently deletes this person's account and all of their logged study data. This can't be undone.</p>
+    <div class="field">
+      <label for="deletePasscodeInput">Admin passcode</label>
+      <input type="password" id="deletePasscodeInput" placeholder="Admin passcode" autocomplete="off">
+    </div>
+    <div class="gate-error hidden" id="deleteAccountError"></div>
+    <div class="modal-actions">
+      <button class="text" id="cancelDeleteAccountBtn">Cancel</button>
+      <button class="danger" id="confirmDeleteAccountBtn">Delete permanently</button>
+    </div>
+  </div>
+</div>
+
 <script>
 (function(){
   const ACTIVE_KEY = 'paceSession';           // {"name":"Priya","token":"..."} — remembers who's logged in on this device
   const LAST_NAME_KEY = 'paceLastName';       // last name used to log in on this device, just for offering biometric login
+  const TIMER_KEY = 'paceTimerRunning';       // {"name":"Priya","startedAt":169...} — survives refresh/app-close while a timer is running
   const THEME_KEY = 'paceTheme';
   const API_BASE = '/api';
   const $ = id => document.getElementById(id);
@@ -1040,6 +1270,18 @@
     const body = await res.json().catch(() => ({}));
     if(!res.ok) throw new Error(body.error || 'Could not log in as admin');
     return body; // { ok, isAdmin, token }
+  }
+  async function apiAdminDeleteAccount(name, passcode){
+    const res = await fetch(`${API_BASE}/admin/delete-account`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json', ...authHeaders()},
+      body: JSON.stringify({ name, passcode })
+    });
+    const body = await res.json().catch(() => ({}));
+    if(res.status === 401 && body.error === 'Incorrect admin passcode'){ throw new Error(body.error); }
+    if(res.status === 401) throw new AuthError('Session expired');
+    if(!res.ok) throw new Error(body.error || 'Could not delete this account');
+    return body; // { ok, deleted }
   }
   // ---------- WebAuthn (Face ID / Touch ID / fingerprint) ----------
   async function apiWebauthnPost(action, extra){
@@ -1213,7 +1455,7 @@
 
   let activeProfile = null;
   let isAdminSession = false;
-  let data = { goal:null, entries:[], private:false };
+  let data = { goal:null, entries:[], sessions:[], private:false };
   let currentView = 'mine';
 
   // ---------- date utils ----------
@@ -1312,6 +1554,11 @@
   }
 
   function forceLogout(message){
+    // Don't touch the stored timer in localStorage - it's keyed by name, so
+    // it'll be picked back up correctly next time this profile logs in.
+    // Just stop the local UI clock so it's not ticking in the background.
+    if(timerTickHandle){ clearInterval(timerTickHandle); timerTickHandle = null; }
+    timerStartedAt = null;
     sessionToken = null;
     activeProfile = null;
     isAdminSession = false;
@@ -1336,9 +1583,10 @@
     $('loadingState').classList.remove('hidden');
     try{
       data = await apiGetProfile(name);
+      normalizeData();
     }catch(e){
       if(e instanceof AuthError){ return forceLogout('Your session expired — please log in again.'); }
-      data = { goal:null, entries:[], private:false };
+      data = { goal:null, entries:[], sessions:[], private:false };
       alert('Could not reach the shared server — check your connection. You can keep using the app, but your data may not sync yet.');
     }
     $('loadingState').classList.add('hidden');
@@ -1494,6 +1742,7 @@
   function showDashboard(){
     $('setupCard').classList.add('hidden');
     $('dashboard').classList.remove('hidden');
+    renderThoughtOfTheDay();
   }
 
   function updateTotalPreview(){
@@ -1539,7 +1788,7 @@
 
   $('resetAllBtn').addEventListener('click', () => {
     if(confirm(`This clears ${activeProfile}'s target and every logged entry. Are you sure?`)){
-      data = { goal:null, entries:[], private: data.private };
+      data = { goal:null, entries:[], sessions:[], private: data.private };
       saveProfileData(activeProfile, data);
       showSetup();
       $('dailyTargetInput').value='';
@@ -1548,6 +1797,225 @@
       $('totalPreviewRow').style.display='none';
     }
   });
+
+  // ======================================================
+  // SESSIONS (each Start/Stop run, or manual log, is one row)
+  // ======================================================
+  function makeSessionId(){
+    return 's' + Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+  }
+
+  // Older accounts only have `entries` (one total per day). The first time
+  // such an account loads here, turn each of those entries into a single
+  // synthetic "manual" session so the log list has something to group, then
+  // sessions becomes the source of truth from then on.
+  function normalizeData(){
+    if(!Array.isArray(data.sessions)) data.sessions = [];
+    if(data.sessions.length === 0 && Array.isArray(data.entries) && data.entries.length > 0){
+      data.sessions = data.entries.map(e => ({
+        id: makeSessionId(),
+        date: e.date,
+        startedAt: null,
+        endedAt: null,
+        hours: e.hours,
+        source: 'manual'
+      }));
+    }
+    rebuildEntriesFromSessions();
+  }
+
+  // entries[] (one total per day) stays around purely because the
+  // progress bar, chart, and balance math all key off it - this keeps
+  // those untouched while sessions[] becomes the real record.
+  function rebuildEntriesFromSessions(){
+    const totals = {};
+    data.sessions.forEach(s => {
+      totals[s.date] = round2((totals[s.date] || 0) + s.hours);
+    });
+    data.entries = Object.keys(totals).map(date => ({ date, hours: totals[date] }))
+      .sort((a,b) => a.date < b.date ? 1 : -1);
+  }
+
+  function addSession(date, hours, meta){
+    data.sessions.push({
+      id: makeSessionId(),
+      date,
+      startedAt: (meta && meta.startedAt) || null,
+      endedAt: (meta && meta.endedAt) || null,
+      hours: round2(hours),
+      source: (meta && meta.source) || 'manual'
+    });
+    rebuildEntriesFromSessions();
+    saveProfileData(activeProfile, data);
+    render();
+  }
+
+  function deleteSession(id){
+    data.sessions = data.sessions.filter(s => s.id !== id);
+    rebuildEntriesFromSessions();
+    saveProfileData(activeProfile, data);
+    render();
+  }
+
+  // ======================================================
+  // STUDY TIMER (Start/Stop, not pause - stopping always logs)
+  // ======================================================
+  let timerStartedAt = null;   // ms epoch, or null when not running
+  let timerTickHandle = null;
+
+  function getStoredTimer(){
+    try{
+      const raw = localStorage.getItem(TIMER_KEY);
+      return raw ? JSON.parse(raw) : null;
+    }catch(e){ return null; }
+  }
+  function setStoredTimer(name, startedAt){
+    try{ localStorage.setItem(TIMER_KEY, JSON.stringify({ name, startedAt })); }catch(e){}
+  }
+  function clearStoredTimer(){
+    try{ localStorage.removeItem(TIMER_KEY); }catch(e){}
+  }
+
+  function fmtElapsed(ms){
+    const totalSec = Math.max(0, Math.floor(ms/1000));
+    const h = Math.floor(totalSec/3600);
+    const m = Math.floor((totalSec%3600)/60);
+    const s = totalSec%60;
+    const pad = (n) => String(n).padStart(2,'0');
+    return `${pad(h)}:${pad(m)}:${pad(s)}`;
+  }
+
+  function tickTimerDisplay(){
+    if(timerStartedAt == null) return;
+    $('timerDisplay').textContent = fmtElapsed(Date.now() - timerStartedAt);
+  }
+
+  function setTimerUiRunning(isRunning){
+    const btn = $('timerToggleBtn');
+    const status = $('timerStatus');
+    btn.textContent = isRunning ? 'Stop' : 'Start';
+    btn.classList.toggle('is-running', isRunning);
+    status.textContent = isRunning ? 'Running' : 'Not running';
+    status.classList.toggle('running', isRunning);
+  }
+
+  function startTimer(){
+    if(timerStartedAt != null) return;
+    timerStartedAt = Date.now();
+    setStoredTimer(activeProfile, timerStartedAt);
+    setTimerUiRunning(true);
+    tickTimerDisplay();
+    timerTickHandle = setInterval(tickTimerDisplay, 1000);
+  }
+
+  function stopTimer(){
+    if(timerStartedAt == null) return;
+    const startedAt = timerStartedAt;
+    const endedAt = Date.now();
+    clearInterval(timerTickHandle);
+    timerTickHandle = null;
+    timerStartedAt = null;
+    clearStoredTimer();
+    setTimerUiRunning(false);
+    $('timerDisplay').textContent = '00:00:00';
+
+    const hours = round2((endedAt - startedAt) / 3600000);
+    const date = todayStr();
+    if(hours > 0){
+      addSession(date, hours, { startedAt, endedAt, source:'timer' });
+      $('timerHint').textContent = `Logged ${round1(hours) === 0 ? '<0.1' : round1(hours)} hrs for ${fmtDateNice(date)}.`;
+    } else {
+      $('timerHint').textContent = 'Stopped — too short to log.';
+    }
+    updateSessionHint();
+  }
+
+  $('timerToggleBtn').addEventListener('click', () => {
+    if(timerStartedAt == null){ startTimer(); } else { stopTimer(); }
+  });
+
+  // If a timer was left running (tab closed, app refreshed) for the
+  // profile that's now loading, pick the live display back up rather
+  // than silently losing the in-progress session.
+  function restoreTimerIfAny(){
+    const stored = getStoredTimer();
+    if(stored && stored.name === activeProfile && stored.startedAt){
+      timerStartedAt = stored.startedAt;
+      setTimerUiRunning(true);
+      tickTimerDisplay();
+      timerTickHandle = setInterval(tickTimerDisplay, 1000);
+      $('timerHint').textContent = 'Resumed a timer that was already running.';
+    } else {
+      setTimerUiRunning(false);
+      $('timerDisplay').textContent = '00:00:00';
+    }
+  }
+
+  // ======================================================
+  // THOUGHT OF THE DAY
+  // ======================================================
+  // Written for people grinding through medical school, not generic
+  // productivity lines - rounds, boards, and the grind of repetition are
+  // part of the vocabulary on purpose. Same quote for everyone on a given
+  // calendar day; picked deterministically from the date so it doesn't
+  // change on refresh and doesn't need a server round-trip.
+  const QUOTES = [
+    "The students who matter most in a hospital one day are the ones who didn't skip the boring chapter today.",
+    "Every cadaver lab, every ward round, every late page of First Aid is compounding toward a competence your future patients will never see you build.",
+    "You are not behind. You are mid-curve, and the curve only bends upward for people who stay on it.",
+    "Nobody becomes a clinician by feeling ready. They become one by showing up to study before they feel ready, every single day.",
+    "The diagnosis you'll nail in your third year of residency is being assembled, fact by fact, in a session like this one.",
+    "Discipline is the only drug with no tolerance - the more you take it, the better it works.",
+    "Your competition isn't the rest of the batch. It's the version of you that almost closed this app five minutes ago.",
+    "Mediocre doctors memorized less than this. Reread that sentence before you skip today's hours.",
+    "The exam doesn't test what you know. It tests what you kept doing on the days you didn't want to.",
+    "Pull the next hour out of yourself even when it's unglamorous - that's the entire job description of becoming good at this.",
+    "Every senior resident you admire once sat exactly where you're sitting, unsure if today's hours would matter. They did.",
+    "You don't need motivation today. You need one more page, then the next one.",
+    "A tired mind that shows up beats a fresh mind that doesn't, every single time it's been measured.",
+    "What you're building right now is not a grade. It's the instinct that fires correctly at 3 AM on call, years from now.",
+    "The syllabus is long because the responsibility waiting on the other side of it is enormous. Treat the length as proof of the stakes, not as a punishment.",
+    "Consistency beats intensity. The student logging two honest hours daily will out-learn the one cramming twelve once a week.",
+    "Future-you is currently being negotiated with by present-you. Don't let present-you win this one.",
+    "Hard things done daily stop feeling hard. They just start feeling like who you are.",
+    "Nobody remembers the days that felt easy. They remember the ones they pushed through anyway - those are the ones that built them.",
+    "Patients don't get a worse version of you because you were tired. They get whatever version showed up. Make it a good one.",
+    "The gap between a passing student and a distinction student is rarely talent. It's almost always one extra hour, repeated for months.",
+    "You are allowed to be exhausted. You are not allowed to use that as a reason to stop logging the work.",
+    "This subject feels endless because medicine is endless. Welcome to the profession - now keep going.",
+    "Every hour you log today is a small, compounding bet on the kind of doctor you're going to be.",
+    "Confidence on rounds is just preparation nobody saw happen. Build it now, where no one's watching.",
+    "The version of you who passes with distinction is not smarter. They simply didn't negotiate with themselves today.",
+    "Boredom is the tax you pay for mastery. Pay it now, while the stakes are a grade and not a patient.",
+    "If today's session feels repetitive, good - repetition is what turns information into instinct.",
+    "You chose a profession where 'good enough' isn't good enough. Study like you already know that.",
+    "The hours you can't see results from yet are usually the ones doing the most work.",
+    "Treat today's target like a patient who's depending on you to show up. Because, eventually, one will.",
+    "Whatever chapter feels impossible right now is just unfamiliar. Familiarity is bought with time, not talent.",
+    "Closing this app without logging anything is the only way to actually fall behind. Stopping the timer late never is.",
+    "Excellence in medicine is just a long string of unremarkable Tuesdays where someone refused to quit early.",
+    "The strongest residents weren't the ones who never struggled. They were the ones who kept a study log on the days they did.",
+    "Your brain doesn't need to feel ready to retain this. It just needs the repetition. Give it that.",
+    "Somewhere, a future patient is better off because you didn't stop at 'tired enough to quit' today.",
+    "Small, logged sessions are how unmanageable subjects get managed. Stop trying to swallow the whole thing at once.",
+    "The discomfort of studying today is temporary. The competence it buys you is not.",
+    "You're not trying to know everything. You're trying to know slightly more than yesterday. That's the whole game."
+  ];
+
+  function dateSeed(dateStr){
+    let h = 0;
+    for(let i = 0; i < dateStr.length; i++){
+      h = (h * 31 + dateStr.charCodeAt(i)) >>> 0;
+    }
+    return h;
+  }
+
+  function renderThoughtOfTheDay(){
+    const el = $('quoteText');
+    if(!el) return;
+    const idx = dateSeed(todayStr()) % QUOTES.length;
+    el.textContent = QUOTES[idx];
+  }
 
   // ======================================================
   // ENTRIES
@@ -1569,7 +2037,13 @@
     const hours = parseFloat($('entryHours').value);
     if(!date){ alert('Pick a date.'); return; }
     if(isNaN(hours) || hours < 0){ alert('Enter valid hours.'); return; }
-    commitEntry(date, hours);
+    // "Set total" replaces whatever sessions exist that day with one
+    // manual session equal to the exact total requested.
+    data.sessions = data.sessions.filter(s => s.date !== date);
+    data.sessions.push({ id: makeSessionId(), date, startedAt:null, endedAt:null, hours: round2(hours), source:'manual' });
+    rebuildEntriesFromSessions();
+    saveProfileData(activeProfile, data);
+    render();
     $('entryHours').value = '';
     updateSessionHint();
   });
@@ -1579,9 +2053,7 @@
     const hours = parseFloat($('entryHours').value);
     if(!date){ alert('Pick a date.'); return; }
     if(isNaN(hours) || hours <= 0){ alert('Enter valid hours.'); return; }
-    const existing = data.entries.find(e => e.date === date);
-    const newTotal = round2((existing ? existing.hours : 0) + hours);
-    commitEntry(date, newTotal);
+    addSession(date, hours, { source:'manual' });
     $('entryHours').value = '';
     updateSessionHint();
   });
@@ -1617,6 +2089,7 @@
 
   function deleteEntry(date){
     data.entries = data.entries.filter(e => e.date !== date);
+    data.sessions = data.sessions.filter(s => s.date !== date);
     saveProfileData(activeProfile, data);
     render();
     updateSessionHint();
@@ -1812,6 +2285,9 @@
     summaries.forEach(s => {
       const row = document.createElement('div');
       row.className = 'person-row' + (s.name === activeProfile ? ' is-me' : '');
+      const deleteBtn = viewerIsAdmin
+        ? `<button class="person-del-btn" title="Delete this account" data-name="${escapeHtml(s.name)}">✕</button>`
+        : '';
       // Numbers are only stripped server-side for non-admins; admin gets
       // real values back even when `private` is true, so check both.
       const hiddenFromMe = s.private && !viewerIsAdmin;
@@ -1821,6 +2297,7 @@
             <span class="avatar">${initials(s.name)}</span>
             <span class="person-name">${escapeHtml(s.name)}</span>
             <span class="person-bal even">Private</span>
+            ${deleteBtn}
           </div>`;
         list.appendChild(row);
         return;
@@ -1831,6 +2308,7 @@
             <span class="avatar">${initials(s.name)}</span>
             <span class="person-name">${escapeHtml(s.name)}</span>
             <span class="person-bal even">No target set</span>
+            ${deleteBtn}
           </div>`;
         list.appendChild(row);
         return;
@@ -1845,12 +2323,18 @@
           <span class="avatar">${initials(s.name)}</span>
           <span class="person-name">${escapeHtml(s.name)}</span>
           <span class="person-bal ${balClass}">${balText}</span>
+          ${deleteBtn}
         </div>
         <div class="person-track"><div class="person-fill" style="width:${s.pct}%"></div></div>
         <div class="person-meta">${round1(s.dailyTarget)}h/day · ${s.daysRemaining} days left ${adminPrivateBadge}</div>
       `;
       list.appendChild(row);
     });
+    if(viewerIsAdmin){
+      list.querySelectorAll('.person-del-btn').forEach(btn => {
+        btn.addEventListener('click', () => openDeleteAccountModal(btn.getAttribute('data-name')));
+      });
+    }
   }
 
   function switchView(view){
@@ -1868,6 +2352,57 @@
   }
   $('viewTabs').querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => switchView(btn.dataset.view));
+  });
+
+  // ======================================================
+  // ADMIN: DELETE ACCOUNT
+  // ======================================================
+  let pendingDeleteName = null;
+
+  function openDeleteAccountModal(name){
+    pendingDeleteName = name;
+    $('deleteAccountMessage').textContent =
+      `This permanently deletes ${name}'s account and all of their logged study data. This can't be undone.`;
+    $('deletePasscodeInput').value = '';
+    $('deleteAccountError').classList.add('hidden');
+    $('deleteAccountModal').classList.remove('hidden');
+    $('deletePasscodeInput').focus();
+  }
+
+  function closeDeleteAccountModal(){
+    pendingDeleteName = null;
+    $('deleteAccountModal').classList.add('hidden');
+  }
+
+  function showDeleteAccountError(msg){
+    const el = $('deleteAccountError');
+    el.textContent = msg;
+    el.classList.remove('hidden');
+  }
+
+  $('cancelDeleteAccountBtn').addEventListener('click', closeDeleteAccountModal);
+
+  $('confirmDeleteAccountBtn').addEventListener('click', async () => {
+    if(!pendingDeleteName) return;
+    const passcode = $('deletePasscodeInput').value;
+    $('deleteAccountError').classList.add('hidden');
+    if(!passcode){ return showDeleteAccountError('Enter the admin passcode to confirm.'); }
+    const btn = $('confirmDeleteAccountBtn');
+    btn.disabled = true;
+    try{
+      await apiAdminDeleteAccount(pendingDeleteName, passcode);
+      closeDeleteAccountModal();
+      renderEveryone();
+    }catch(e){
+      if(e instanceof AuthError){ closeDeleteAccountModal(); return forceLogout('Your session expired — please log in again.'); }
+      showDeleteAccountError(e.message || 'Something went wrong');
+    }finally{
+      btn.disabled = false;
+    }
+  });
+
+  $('deletePasscodeInput').addEventListener('keydown', (e) => {
+    if(e.key === 'Enter') $('confirmDeleteAccountBtn').click();
   });
 
   // ======================================================
@@ -2001,24 +2536,67 @@
         cumByDate[e.date] = running - expectedAtDay;
       });
 
+      // Sessions for a date, most recent first, so today's freshest
+      // session shows at the top of that day's group.
+      const sessionsByDate = {};
+      data.sessions.forEach(s => {
+        (sessionsByDate[s.date] = sessionsByDate[s.date] || []).push(s);
+      });
+      Object.values(sessionsByDate).forEach(list => {
+        list.sort((a,b) => (b.endedAt || 0) - (a.endedAt || 0));
+      });
+
       data.entries.forEach(e => {
-        const row = document.createElement('div');
-        row.className = 'log-row';
         const d = cumByDate[e.date];
         const deltaClass = d >= 0 ? 'ahead' : 'behind';
         const deltaText = (d >= 0 ? '+' : '−') + round1(Math.abs(d)) + 'h';
-        row.innerHTML = `
+        const dayGroup = document.createElement('div');
+        dayGroup.className = 'log-group';
+
+        const headerRow = document.createElement('div');
+        headerRow.className = 'log-row';
+        headerRow.innerHTML = `
           <span class="date-txt">${fmtDateNice(e.date)}</span>
           <span class="hrs">${round1(e.hours)} hrs</span>
           <span class="delta ${deltaClass}">${deltaText}</span>
-          <button class="del-btn" title="Delete entry" data-date="${e.date}">✕</button>
+          <button class="del-btn" title="Delete this entire day" data-date="${e.date}">✕</button>
         `;
-        logList.appendChild(row);
+        dayGroup.appendChild(headerRow);
+
+        const sessionsForDay = sessionsByDate[e.date] || [];
+        if(sessionsForDay.length > 1 || (sessionsForDay.length === 1 && sessionsForDay[0].source === 'timer')){
+          sessionsForDay.forEach(s => {
+            const subRow = document.createElement('div');
+            subRow.className = 'session-row';
+            const timeLabel = (s.startedAt && s.endedAt)
+              ? `${fmtTime(s.startedAt)} – ${fmtTime(s.endedAt)}`
+              : 'Manually logged';
+            const sourceLabel = s.source === 'timer' ? 'Timer' : 'Manual';
+            subRow.innerHTML = `
+              <span class="session-dot"></span>
+              <span class="session-time">${timeLabel}</span>
+              <span class="session-tag">${sourceLabel}</span>
+              <span class="session-hrs">${round1(s.hours)}h</span>
+              <button class="session-del-btn" title="Delete this session" data-id="${s.id}">✕</button>
+            `;
+            dayGroup.appendChild(subRow);
+          });
+        }
+
+        logList.appendChild(dayGroup);
       });
       logList.querySelectorAll('.del-btn').forEach(btn => {
         btn.addEventListener('click', () => deleteEntry(btn.getAttribute('data-date')));
       });
+      logList.querySelectorAll('.session-del-btn').forEach(btn => {
+        btn.addEventListener('click', () => deleteSession(btn.getAttribute('data-id')));
+      });
     }
+  }
+
+  function fmtTime(ms){
+    const d = new Date(ms);
+    return d.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' });
   }
 
   async function refreshNotifRow(){
@@ -2122,6 +2700,7 @@
     $('entryDate').value = todayStr();
     $('entryDate').max = todayStr();
     updateSessionHint();
+    restoreTimerIfAny();
     currentView = 'mine';
     $('viewTabs').querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.view === 'mine'));
     $('everyoneView').classList.add('hidden');
@@ -2154,3 +2733,4 @@
 </script>
 </body>
 </html>
+
