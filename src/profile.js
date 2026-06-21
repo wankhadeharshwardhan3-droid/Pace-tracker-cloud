@@ -2,6 +2,7 @@ import { requireSession, unauthorized, json, methodNotAllowed } from "./session.
 
 const MAX_NAME_LEN = 30;
 const MAX_ENTRIES = 5000;
+const MAX_SESSIONS = 8000;
 
 function sanitizeName(name) {
   return String(name || "").trim().slice(0, MAX_NAME_LEN);
@@ -28,7 +29,8 @@ export async function handleProfile(request, env) {
     if (name.toLowerCase() !== sessionName.toLowerCase()) {
       return unauthorized("You can only view your own profile data");
     }
-    const record = (await kv.get(`data:${name}`, { type: "json" })) || { goal: null, entries: [], private: false };
+    const record = (await kv.get(`data:${name}`, { type: "json" })) || { goal: null, entries: [], sessions: [], private: false };
+    if (!Array.isArray(record.sessions)) record.sessions = [];
     return json(200, record);
   }
 
@@ -67,9 +69,23 @@ export async function handleProfile(request, env) {
           .filter((e) => e.date)
       : [];
 
+    const sessions = Array.isArray(incoming.sessions)
+      ? incoming.sessions
+          .slice(0, MAX_SESSIONS)
+          .map((s) => ({
+            id: String(s.id || ""),
+            date: String(s.date || ""),
+            startedAt: Number(s.startedAt) || null,
+            endedAt: Number(s.endedAt) || null,
+            hours: Number(s.hours) || 0,
+            source: s.source === "timer" ? "timer" : "manual",
+          }))
+          .filter((s) => s.id && s.date)
+      : [];
+
     const isPrivate = Boolean(incoming.private);
 
-    await kv.put(`data:${name}`, JSON.stringify({ goal, entries, private: isPrivate }));
+    await kv.put(`data:${name}`, JSON.stringify({ goal, entries, sessions, private: isPrivate }));
 
     const list = (await kv.get("list", { type: "json" })) || [];
     if (!list.includes(name)) {
