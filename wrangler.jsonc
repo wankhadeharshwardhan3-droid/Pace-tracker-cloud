@@ -1,5 +1,5 @@
 {
-  "name": "pace-tracker",
+  "name": "pace-tracker-cloud",
   "main": "src/index.js",
   "compatibility_date": "2026-06-20",
   "compatibility_flags": ["nodejs_compat"],
